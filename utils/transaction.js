@@ -97,6 +97,7 @@ export const createCommentTransaction = (postAccount, text) => {
 }
 
 export const createPostTransaction = (userPublicKey, postAccount, title, text) => {
+    console.log({userPublicKey, postAccount, title, text})
     const titleMessage = {
         type: MESSAGE_TYPES.POST,
         index: 0,
@@ -109,6 +110,7 @@ export const createPostTransaction = (userPublicKey, postAccount, title, text) =
         index: index + 1,
         value: item,
     }));
+    console.log([titleMessage, ...textMessageList])
     const embeddedTransactionsFields = [];
     const embeddedTransactions = [];
     [titleMessage, ...textMessageList].forEach(message => {
@@ -127,6 +129,7 @@ export const createPostTransaction = (userPublicKey, postAccount, title, text) =
             mosaics: []
         });
     });
+    console.log({embeddedTransactionsFields})
     const merkleHash = facade.constructor.hashEmbeddedTransactions(embeddedTransactions);
     const transaction = facade.transactionFactory.create({
         type: 'aggregate_complete_transaction_v2',
@@ -134,13 +137,12 @@ export const createPostTransaction = (userPublicKey, postAccount, title, text) =
 		transactionsHash: merkleHash,
 		transactions: embeddedTransactions,
     });
-
     const fields = {
         type: 'aggregate_complete_transaction_v2',
         deadline: createTransactionDeadline().toString(),
         transactions: embeddedTransactionsFields
     }
-
+    console.log({fields})
     return createTransactionSendingOptions(transaction, fields);
 }
 
