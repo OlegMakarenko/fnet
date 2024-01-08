@@ -1,28 +1,13 @@
 
 import { useEffect, useState } from 'react';
 import Modal from './Modal';
-import Avatar from './Avatar';
-import rehypeSanitize from 'rehype-sanitize';
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
-import dynamic from 'next/dynamic';
 import TextBox from './TextBox';
 import Field from './Field';
 import { MESSAGE_TYPES } from '@/constants';
 import { FormTransaction } from './FormTransaction';
-import { createAccount } from 'utils/transaction';
-
-const MDEditor = dynamic(
-  () => import("@uiw/react-md-editor").then((mod) => mod.default),
-  { ssr: false }
-);
-const EditerMarkdown = dynamic(
-  () =>
-    import("@uiw/react-md-editor").then((mod) => {
-      return mod.default.Markdown;
-    }),
-  { ssr: false }
-);
+import { createAccount } from '@/utils';
 
 export const FormCreatePost = ({ isVisible, onClose}) => {
 	const [postAccount, setPostAccount] = useState('');
@@ -35,7 +20,6 @@ export const FormCreatePost = ({ isVisible, onClose}) => {
 		setTitle('');
 		setText('');
 	}, [isVisible]);
-
 
 	return (
 		<Modal isVisible={isVisible} onClose={onClose}>

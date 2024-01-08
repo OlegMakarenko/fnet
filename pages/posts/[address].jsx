@@ -90,7 +90,7 @@ const PostAccount = ({ author, initialPost, postAccount }) => {
 	return (
 		<div className={styles.wrapper}>
 			<Head>
-				<title>{t('page_post', {title: post.title})}</title>
+				<title>{t('page_post', { title: post.title })}</title>
 				<link rel="/preview.png" href="image url" />
 				<meta property="og:description" content={post.title} />
 			</Head>
@@ -121,7 +121,6 @@ const PostAccount = ({ author, initialPost, postAccount }) => {
 							</div>
 						</div>
 					</Card>
-
 					<Card>
 						<div className="layout-flex-col" id="comments">
 							<h4>Comments</h4>
