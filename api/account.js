@@ -1,5 +1,5 @@
 import config from '@/config';
-import { decodeTransactionMessage, encodeAddress, encodeMetadataKey, makeRequest, publicKeyToAddress, truncateDecimals } from '@/utils';
+import { decodeTransactionMessage, encodeAddress, encodeMetadataKey, makeRequest } from '@/utils';
 import { getNodeUrl } from './blockchain';
 import { METADATA_KEYS } from '@/constants';
 
