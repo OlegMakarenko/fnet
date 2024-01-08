@@ -1,0 +1,52 @@
+@import "../variables";
+
+.alert {
+    gap: $spacing-base / 2;
+    width: 100%;
+    padding: $spacing-base $spacing-padding;
+    border-radius: $border-radius-card;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    // animation-name: fade-in;
+    // animation-duration: 250ms;
+    // animation-timing-function: linear;
+    // animation-delay: 250ms;
+}
+
+.icon {
+    width: $spacing-base * 3;
+    height: $spacing-base * 3;
+}
+
+.title {
+    font: $font-body-bold;
+    color: #fff;
+}
+
+.body {
+    font: $font-body;
+    color: #fff;
+}
+
+.warning {
+    background-color: $color-warning-dark;
+}
+
+.danger {
+    background-color: $color-danger-dark;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+
+    to {
+        opacity: 1;
+        max-height: 100rem;
+    }
+}

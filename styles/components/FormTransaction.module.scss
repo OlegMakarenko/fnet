@@ -1,0 +1,44 @@
+@import "../variables";
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-base * 2;
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: $spacing-base;
+}
+
+.headerInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.address {
+    font: $font-post-date;
+}
+
+.text {
+
+}
+
+.buttonRow {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.buttonOpenPost {
+    flex: 1;
+}
+
+.buttonSend {
+    align-self: flex-end;
+}

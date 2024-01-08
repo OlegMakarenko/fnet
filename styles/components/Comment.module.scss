@@ -1,0 +1,43 @@
+@import "../variables";
+
+.post {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-base;
+    width: 100%;
+    position: relative;
+    //border-bottom: $border-list-separator solid $color-border-list-separator;
+    padding-bottom: $spacing-base;
+    margin-bottom: $spacing-base;
+
+    &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+}
+
+.post__unconfirmed {
+    opacity: 0.5;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    gap: $spacing-base * 2;
+}
+
+.headerInfo {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-base / 2;
+}
+
+.date {
+    font: $font-post-date;
+    color: $color-text-date;
+}
+
+.text {
+    white-space: pre-wrap;
+}

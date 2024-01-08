@@ -1,0 +1,113 @@
+@import "../variables";
+.post {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-padding;
+    width: 100%;
+    transition: opacity 500ms ease-in-out
+}
+
+.post__loading {
+    opacity: 0.3;
+}
+
+.title {
+    font: $font-post-title;
+    font-feature-settings: 'ss01';
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
+    gap: $spacing-base * 1.5;
+}
+
+.avatarAndInfo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: $spacing-base * 1.5;
+}
+
+.headerInfo {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-base / 2;
+}
+
+.author {
+    font: $font-post-author;
+    font-feature-settings: 'ss01';
+    color: $color-text-body;
+}
+
+.date {
+    font: $font-post-date;
+    color: $color-text-date;
+}
+
+.text {
+    //white-space: pre-wrap;
+
+    img {
+        width: 100%;
+    }
+
+    p {
+        margin-block-start: 0;
+        margin-block-end: 0;
+        margin-bottom: calc($spacing-base * 3 - 0.29rem);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    a {
+        text-decoration: underline;
+    }
+}
+
+.statsContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: $spacing-base * 2;
+}
+
+%counter {
+    font: $font-body-bold;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: $spacing-base / 2;
+    cursor: pointer;
+}
+
+.likesCounter {
+    @extend %counter;
+    color: $color-likes;
+}
+
+.commentCounter {
+    @extend %counter;
+    color: $color-comments;
+}
+
+.counterIcon {
+    height: 1.5rem;
+    width: 1.5rem;
+}
+
+.buttonEdit {
+    align-self: flex-start;
+}
+
+.loadingIndicator {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}

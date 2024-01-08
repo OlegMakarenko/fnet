@@ -1,0 +1,32 @@
+@import "../variables";
+
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: $spacing-header-height;
+    padding: 0 $spacing-padding;
+    background: $color-background-header;
+}
+
+.headerLogo {
+    position: relative;
+    width: $spacing-base * 3;
+    height: $spacing-base * 3;
+    margin: auto 0;
+    user-select: none;
+}
+
+.headerRightSection {
+    display: flex;
+    flex-direction: row;
+    gap: $spacing-base * 2;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+@media #{$screen-mobile} {
+
+}

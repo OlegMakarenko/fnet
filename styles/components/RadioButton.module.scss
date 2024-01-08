@@ -1,0 +1,50 @@
+@import "../variables";
+
+.radioButton {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+    gap: $spacing-base;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.icon {
+    width: $spacing-base * 2;
+    height: $spacing-base * 2;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.icon__active {
+    background-color: $color-radio-active;
+}
+
+.icon__inactive {
+    background-color: $color-radio-inactive;
+}
+
+.content {
+    border: $spacing-base / 4 solid $color-radio-inactive;
+    border-radius: $border-radius-radio-content;
+    padding: $spacing-base * 2;
+    flex: 1;
+}
+
+.content__active {
+    border-color: $color-radio-active;
+    background-color: $color-radio-content-active;
+}
+
+.content__inactive {
+    border-color: $color-radio-inactive;
+}
+
+
+@media #{$screen-mobile} {
+    .icon {
+        display: none;
+    }
+}

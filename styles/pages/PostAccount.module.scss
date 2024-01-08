@@ -1,0 +1,29 @@
+@import "../variables";
+
+.wrapper {
+    height: 100%;
+}
+
+.actionPanel {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-base;
+    flex-direction: row;
+    overflow-y: auto;
+}
+
+.titleWithButton {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    min-height: $spacing-base * 3;
+}
+
+
+@media #{$screen-mobile} {
+    .actionPanel {
+        flex-direction: row;
+        overflow-y: auto;
+    }
+}

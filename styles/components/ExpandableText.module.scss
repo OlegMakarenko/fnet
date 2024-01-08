@@ -1,0 +1,27 @@
+@import "../variables";
+
+.expandableText {
+    position: relative;
+    gap: $spacing-base;
+    width: 100%;
+    padding: $spacing-base * 2;
+    background-color: $color-background-form;
+    border-radius: $border-radius-card;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.button {
+    margin-top: $spacing-base * 2;
+    text-transform: uppercase;
+    width: 100%;
+    text-align: center;
+    font: $font-body-bold;
+    cursor: pointer;
+}
+
+.copy {
+    position: absolute;
+    top: $spacing-base;
+    right: $spacing-base;
+}

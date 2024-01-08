@@ -1,0 +1,21 @@
+{
+	"button_createPost": "Make a post",
+	"button_editPost": "Edit post",
+	"button_addPost": "Add post",
+	"button_like": "Like",
+	"button_donate": "Donate",
+	"button_comment": "Comment",
+	"button_share": "Share",
+	"button_expand": "View More",
+	"field_likes": "Likes",
+	"filed_comments": "Comments",
+	"label_anonymousAuthor": "Anonymous Author",
+	"page_post": "{{title}}",
+	"page_settings": "Settings",
+	"message_copyFailed": "Failed to copy",
+	"message_copySuccess": "Copied",
+	"message_emptyTable": "Nothing to show.",
+	"message_nothingFound": "Nothing found.",
+	"message_404": "We can't seem to find the resource you're looking for.",
+	"message_500": "Internal Server Error."
+}

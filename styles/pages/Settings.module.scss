@@ -1,0 +1,58 @@
+@import "../variables";
+
+.wrapper {
+    height: 100%;
+}
+
+.storeLinkContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: $spacing-base;
+}
+
+.appStore {
+    height: $spacing-base * 5;
+}
+
+.playStore {
+    height: $spacing-base * 7;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: $spacing-base;
+}
+
+.headerInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.name {
+    font: $font-h4;
+}
+
+.buttonClose {
+    position: fixed;
+    top: $spacing-padding;
+    right: $spacing-padding;
+}
+
+
+@media #{$screen-mobile} {
+    .storeLinkContainer {
+        //flex-direction: column;
+    }
+
+    .appStore {
+        height: $spacing-base * 4;
+    }
+
+    .playStore {
+        height: $spacing-base * 6;
+    }
+}

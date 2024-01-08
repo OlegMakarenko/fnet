@@ -1,0 +1,21 @@
+{
+	"button_createPost": "Створити публікацію",
+	"button_editPost": "Редагувати публікацію",
+	"button_addPost": "Додати публікацію",
+	"button_like": "Вподобати",
+	"button_donate": "Задонатити",
+	"button_comment": "Коментувати",
+	"button_share": "Відправити",
+	"button_expand": "Більше",
+	"field_likes": "Вподобання",
+	"filed_comments": "Коментарі",
+	"label_anonymousAuthor": "Анонімний автор",
+	"page_post": "{{title}}",
+	"page_settings": "Settings",
+	"message_copyFailed": "Помилка копіювання",
+	"message_copySuccess": "Скопійовано",
+	"message_emptyTable": "Інформація відсутня",
+	"message_nothingFound": "Нічого не вдалося знайти",
+	"message_404": "Здається, ми не можемо знайти сторінку, що ви шукаєте.",
+	"message_500": "Помилка на стороні серверу."
+}
