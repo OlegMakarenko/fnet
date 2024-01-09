@@ -1,8 +1,6 @@
 
 import { useEffect, useState } from 'react';
 import Modal from './Modal';
-import "@uiw/react-md-editor/markdown-editor.css";
-import "@uiw/react-markdown-preview/markdown.css";
 import TextBox from './TextBox';
 import Field from './Field';
 import { MESSAGE_TYPES } from '@/constants';

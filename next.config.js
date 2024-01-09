@@ -1,8 +1,7 @@
 const i18nConfig = require('./next-i18next.config.js'); // eslint-disable-line import/extensions
 const webpack = require('webpack');
-const removeImports = require('next-remove-imports')();
 
-module.exports = removeImports({
+module.exports = {
 	distDir: 'build',
 	reactStrictMode: true,
 	experimental: {
@@ -20,7 +19,8 @@ module.exports = removeImports({
 
 		// enable async loading of wasm files
 		config.experiments = { asyncWebAssembly: true, topLevelAwait: true, layers: true };
+		config.optimization.minimize = false;
 
 		return config;
 	}
-});
+};
