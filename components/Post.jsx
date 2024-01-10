@@ -11,6 +11,7 @@ import { isMobile } from 'react-device-detect';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus as highlightStyles } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import styles from '@/styles/components/Post.module.scss';
+import Link from 'next/link';
 
 const Post = ({
 	author,
@@ -37,7 +38,7 @@ const Post = ({
 				<div className={styles.avatarAndInfo}>
 					<Avatar value={author.address} size="md" />
 					<div className={styles.headerInfo}>
-						<div href={createPageHref('account', author.address)} className={styles.author}>{authorName}</div>
+						<Link href={createPageHref('authors', author.address)} className={styles.author}>{authorName}</Link>
 						{!dateCreation && <div className={styles.date}>
 							Processing...
 						</div>}

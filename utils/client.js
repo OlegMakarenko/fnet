@@ -116,8 +116,8 @@ export const createPageHref = (pageName, parameter) => {
 		case 'home':
 			href = '/';
 			break;
-		case 'accounts':
-			href = '/accounts';
+		case 'authors':
+			href = '/authors';
 			break;
 		case 'posts':
 			href = '/posts';

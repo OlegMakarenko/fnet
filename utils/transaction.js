@@ -97,7 +97,6 @@ export const createCommentTransaction = (postAccount, text) => {
 }
 
 export const createPostTransaction = (userPublicKey, postAccount, title, text) => {
-    console.log({userPublicKey, postAccount, title, text})
     const titleMessage = {
         type: MESSAGE_TYPES.POST,
         index: 0,
@@ -110,7 +109,7 @@ export const createPostTransaction = (userPublicKey, postAccount, title, text) =
         index: index + 1,
         value: item,
     }));
-    console.log([titleMessage, ...textMessageList])
+
     const embeddedTransactionsFields = [];
     const embeddedTransactions = [];
     [titleMessage, ...textMessageList].forEach(message => {
@@ -129,7 +128,7 @@ export const createPostTransaction = (userPublicKey, postAccount, title, text) =
             mosaics: []
         });
     });
-    console.log({embeddedTransactionsFields})
+
     const merkleHash = facade.constructor.hashEmbeddedTransactions(embeddedTransactions);
     const transaction = facade.transactionFactory.create({
         type: 'aggregate_complete_transaction_v2',
@@ -142,7 +141,7 @@ export const createPostTransaction = (userPublicKey, postAccount, title, text) =
         deadline: createTransactionDeadline().toString(),
         transactions: embeddedTransactionsFields
     }
-    console.log({fields})
+
     return createTransactionSendingOptions(transaction, fields);
 }
 
@@ -262,8 +261,12 @@ export const encodeAddress = (address) => {
         .toUpperCase();
 }
 
+export const decodeAddress = (address) => {
+    const tAddress = new symbolSdk.symbol.Address(Buffer.from(address, 'hex')).toString()
+    return tAddress;
+}
+
 export const signWithSSS = async (transaction) => {
-    console.log('signWithSSS', transaction)
 	// Get transaction fee multipliers
 	// const nodeUrl = await getNodeUrl();
 	// const feeMultipliers = await makeRequest(`${nodeUrl}/network/fees/transaction`);
@@ -271,11 +274,10 @@ export const signWithSSS = async (transaction) => {
 	// Calculate average fee
 	const fee = transaction.size * 100; // feeMultipliers.averageFeeMultiplier;
     transaction.maxFee = UInt64.fromUint(fee);
-    console.log('tx with fee', transaction)
+
 	// Request SSS to sign transaction
 	setTransaction(transaction);
 	const signedTransaction = await requestSign();
-    console.log('signed fee', signedTransaction.payload);
 
 	return signedTransaction.payload;
 };

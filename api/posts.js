@@ -1,5 +1,5 @@
 import config from '@/config';
-import { createAPICallFunction, decodeTransactionMessage, formatTimestamp, makeRequest, publicKeyToAddress } from '@/utils';
+import { createAPICallFunction, createPage, decodeAddress, decodeTransactionMessage, formatTimestamp, makeRequest, publicKeyToAddress } from '@/utils';
 import { getNodeUrl } from './blockchain';
 import { MESSAGE_TYPES } from '@/constants';
 
@@ -70,40 +70,9 @@ export const fetchPostInfo = createAPICallFunction(async address => {
 export const fetchPostHistory = async (postAddress, author) => {
 	const nodeUrl = await getNodeUrl();
 	const transactions = await fetchAllPages(pageNumber => makeRequest(`${nodeUrl}/transactions/confirmed?signerPublicKey=${author.publicKey}&recipientAddress=${postAddress}&type=16724&pageSize=500&pageNumber=${pageNumber}&order=desc&embedded=true`));
-	const postMap = {};
 
-	for (const transactionContainer of transactions) {
-		const { transaction, meta } = transactionContainer;
-		const hash = meta.aggregateHash;
-		const message = JSON.parse(decodeTransactionMessage(transaction.message))
-
-		if (message.type !== MESSAGE_TYPES.POST) {
-			continue;
-		}
-
-		if (!postMap.hasOwnProperty(hash)) {
-			postMap[hash] = {
-				timestamp: meta.timestamp,
-				messages: []
-			}
-		}
-
-		postMap[hash].messages[message.index] = message.value;
-	}
-
-	const posts = Object.values(postMap).map(post => {
-		const [titleMessage, ...textMessages] = post.messages;
-
-		return {
-			title: titleMessage,
-			text: textMessages.join(' '),
-			timestamp: formatTimestamp(post.timestamp)
-		}
-	})
-
-	return posts;
+	return formatPostTransactions(transactions);
 };
-
 
 export const fetchPostActivity = async (postAddress) => {
 	const nodeUrl = await getNodeUrl();
@@ -145,4 +114,62 @@ export const fetchPostActivity = async (postAddress) => {
 		likes,
 		comments
 	};
+};
+
+export const fetchAccountPostPage = async (searchCriteria, author) => {
+	const { pageNumber } = searchCriteria;
+	const nodeUrl = await getNodeUrl();
+	const transactions = await makeRequest(`${nodeUrl}/transactions/confirmed?signerPublicKey=${author.publicKey}&type=16724&pageSize=500&pageNumber=${pageNumber}&order=desc&embedded=true`)
+	const posts = formatPostTransactions(transactions.data);
+
+	return createPage(posts, pageNumber);
+};
+
+const formatPostTransactions = (transactions) => {
+	if (!transactions.length) {
+		return [];
+	}
+
+	const postMap = {};
+
+	for (const transactionContainer of transactions) {
+		const { transaction, meta } = transactionContainer;
+		const hash = meta.aggregateHash;
+		const decodedMessage = decodeTransactionMessage(transaction.message || '');
+		let message;
+
+		try {
+			message = JSON.parse(decodedMessage);
+		}
+		catch {
+			continue;
+		}
+
+		if (message.type !== MESSAGE_TYPES.POST) {
+			continue;
+		}
+
+		if (!postMap.hasOwnProperty(hash)) {
+			postMap[hash] = {
+				timestamp: formatTimestamp(meta.timestamp),
+				messages: [],
+				address: decodeAddress(transaction.recipientAddress)
+			}
+		}
+
+		postMap[hash].messages[message.index] = message.value;
+	}
+
+	const posts = Object.values(postMap).map(post => {
+		const [titleMessage, ...textMessages] = post.messages;
+
+		return {
+			address: post.address,
+			title: titleMessage,
+			text: textMessages.join(' '),
+			timestamp: post.timestamp
+		}
+	})
+
+	return posts;
 };

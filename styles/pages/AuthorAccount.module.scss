@@ -1,0 +1,23 @@
+@import "../variables";
+
+.wrapper {
+    height: 100%;
+}
+
+.profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-base;
+    width: 100%;
+}
+
+.profileInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.name {
+    font: $font-h4;
+}

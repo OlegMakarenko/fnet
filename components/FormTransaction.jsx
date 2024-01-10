@@ -54,7 +54,6 @@ export const FormTransaction = ({ children, postAccount, type, data, onClose }) 
 	const update = () => {
 		switch (type) {
 			case MESSAGE_TYPES.POST: {
-				console.log('Create transaction MESSAGE_TYPES.POST')
 				setTitle('Post');
 				if (!userPublicKey) return;
 				setTransaction(createPostTransaction(userPublicKey, postAccount, data.title, data.text));
@@ -93,7 +92,6 @@ export const FormTransaction = ({ children, postAccount, type, data, onClose }) 
 
 	useEffect(() => {
 		if (userAddress && typesRequiredPublicKey.some(item => item === type)) {
-			console.log('Fetch public key for:', userAddress)
 			fetchPublicKey(userAddress);
 		}
 	}, [userAddress, type]);

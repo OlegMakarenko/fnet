@@ -1,4 +1,5 @@
 import { STORAGE_KEY } from '@/constants';
+import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
 export const useDataManager = (callback, defaultData, onError, loadingState = false) => {
@@ -25,7 +26,7 @@ export const useDataManager = (callback, defaultData, onError, loadingState = fa
 	return [call, isLoading, data];
 };
 
-export const usePagination = (callback, defaultData, defaultFilter = {}) => {
+export const usePagination = (callback, defaultData, defaultFilter = {}, uniqBy) => {
 	const [filter, setFilter] = useState(defaultFilter);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isError, setIsError] = useState(false);
@@ -41,7 +42,12 @@ export const usePagination = (callback, defaultData, defaultFilter = {}) => {
 				const { data, pageNumber: currentPageNumber } = await callback({ pageNumber: pageNumber, ...filter });
 
 				if (currentPageNumber === pageNumber) {
-					setData(v => [...v, ...data]);
+					setData(v => {
+						if (uniqBy) {
+							return _.uniqBy([...v, ...data], uniqBy);
+						}
+						return [...v, ...data]
+					});
 					setPageNumber(currentPageNumber);
 					setIsLastPage(data.length === 0);
 				}
@@ -52,6 +58,10 @@ export const usePagination = (callback, defaultData, defaultFilter = {}) => {
 			}
 			setIsLoading(false);
 		});
+	};
+
+	const requestFirstPage = () => {
+		call(1, filter);
 	};
 
 	const requestNextPage = () => {
@@ -66,7 +76,11 @@ export const usePagination = (callback, defaultData, defaultFilter = {}) => {
 		call(1, filter);
 	};
 
-	return { requestNextPage, data, isLoading, pageNumber, isLastPage, filter, isError, changeFilter };
+	const clearFilter = () => {
+		changeFilter(defaultFilter);
+	};
+
+	return { requestNextPage, requestFirstPage, data, isLoading, pageNumber, isLastPage, filter, isError, changeFilter, clearFilter };
 };
 
 export const useFilter = (callback, defaultData, initialCall) => {
