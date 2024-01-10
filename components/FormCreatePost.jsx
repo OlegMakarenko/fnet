@@ -30,6 +30,7 @@ export const FormCreatePost = ({ isVisible, onClose}) => {
 						value={text}
 						onChange={setText}
 						isMultiline
+						errorMessage={text.length > 86411 ? 'Too many characters' : ''}
 					/>
 				</Field>
 			</FormTransaction>

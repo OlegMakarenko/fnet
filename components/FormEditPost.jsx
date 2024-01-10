@@ -28,6 +28,7 @@ export const FormEditPost = ({ isVisible, onClose, postAccount, post, author}) =
 					<TextBox
 						value={text}
 						onChange={setText}
+						errorMessage={text.length > 86411 ? 'Too many characters' : ''}
 						isMultiline
 					/>
 				</Field>

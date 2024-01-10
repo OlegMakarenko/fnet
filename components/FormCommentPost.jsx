@@ -22,6 +22,7 @@ export const FormCommentPost = ({ isVisible, postAccount, onClose}) => {
 					onChange={setText}
 					isMultiline
 					isLarge
+					errorMessage={text.length > 800 ? 'Too many characters' : ''}
 				/>
 			</FormTransaction>
 		</Modal>
