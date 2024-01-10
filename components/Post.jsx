@@ -7,6 +7,7 @@ import { useTranslation } from 'next-i18next';
 import { numberToShortString } from 'utils/format';
 import Button from './Button';
 import LoadingIndicator from './LoadingIndicator';
+import { isMobile } from 'react-device-detect';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus as highlightStyles } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import styles from '@/styles/components/Post.module.scss';
@@ -73,7 +74,7 @@ const Post = ({
 								children={String(children).replace(/\n$/, '')}
 								language={match[1]}
 								style={highlightStyles}
-								wrapLongLines
+								wrapLongLines={!isMobile}
 							/>
 						) : (
 							<code {...rest} className={className}>
