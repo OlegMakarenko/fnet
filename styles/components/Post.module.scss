@@ -50,7 +50,52 @@
 }
 
 .text {
-    //white-space: pre-wrap;
+    pre {
+        width: 100%;
+        margin-bottom: $spacing-base * 3;
+
+        div {
+            overflow-x: scroll;
+            border-radius: $spacing-base !important;
+            flex: 1;
+        }
+    }
+
+    h1 {
+        font: $font-post-h1;
+        margin-bottom: calc($spacing-base * 3 - 0.29rem);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    h2 {
+        font: $font-post-h2;
+        margin-bottom: calc($spacing-base * 3 - 0.29rem);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    h3 {
+        font: $font-post-h3;
+        margin-bottom: calc($spacing-base * 3 - 0.29rem);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    h4 {
+        font: $font-post-h4;
+        margin-bottom: calc($spacing-base * 3 - 0.29rem);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
 
     img {
         width: 100%;

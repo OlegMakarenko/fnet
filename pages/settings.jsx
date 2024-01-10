@@ -54,10 +54,6 @@ const Settings = () => {
 		{
 			value: 'en',
 			label: 'English'
-		},
-		{
-			value: 'uk',
-			label: 'Українська'
 		}
 	];
 

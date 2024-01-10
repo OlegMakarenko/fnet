@@ -1,17 +1,15 @@
 import Markdown from 'react-markdown'
-import Link from 'next/link';
 import Avatar from './Avatar';
-import Card from './Card';
 import CustomImage from './CustomImage';
 import ValueAge from './ValueAge';
-import styles from '@/styles/components/Post.module.scss';
-import { useState } from 'react';
 import { createPageHref } from 'utils/client';
 import { useTranslation } from 'next-i18next';
-import Field from './Field';
 import { numberToShortString } from 'utils/format';
 import Button from './Button';
 import LoadingIndicator from './LoadingIndicator';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus as highlightStyles } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import styles from '@/styles/components/Post.module.scss';
 
 const Post = ({
 	author,
@@ -36,7 +34,7 @@ const Post = ({
 			{!!title && <div className={styles.title}>{title}</div>}
 			<div className={styles.header}>
 				<div className={styles.avatarAndInfo}>
-				<Avatar value={author.address} size="md" />
+					<Avatar value={author.address} size="md" />
 					<div className={styles.headerInfo}>
 						<div href={createPageHref('account', author.address)} className={styles.author}>{authorName}</div>
 						{!dateCreation && <div className={styles.date}>
@@ -62,7 +60,29 @@ const Post = ({
 				</div>
 			</div>
 			{isEditable && <Button onClick={onEditClick} className={styles.buttonEdit}>Edit Post</Button>}
-			<Markdown className={styles.text}>
+			<Markdown
+				className={styles.text}
+				components={{
+					code(props) {
+						const { children, className, node, ...rest } = props
+						const match = /language-(\w+)/.exec(className || '')
+						return match ? (
+							<SyntaxHighlighter
+								{...rest}
+								PreTag="div"
+								children={String(children).replace(/\n$/, '')}
+								language={match[1]}
+								style={highlightStyles}
+								wrapLongLines
+							/>
+						) : (
+							<code {...rest} className={className}>
+								{children}
+							</code>
+						)
+					}
+				}}
+			>
 				{text}
 			</Markdown>
 			{isLoading && <LoadingIndicator className={styles.loadingIndicator} />}
