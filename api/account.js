@@ -3,9 +3,14 @@ import { decodeTransactionMessage, encodeAddress, encodeMetadataKey, makeRequest
 import { getNodeUrl } from './blockchain';
 import { METADATA_KEYS } from '@/constants';
 
-export const fetchAccountName = async address => {
+export const fetchAuthorInfo = async address => {
 	const nodeUrl = await getNodeUrl();
 	let metadata;
+
+	const info = {
+		name: '',
+		bio: ''
+	}
 
 	try {
 		metadata = await makeRequest(`${nodeUrl}/metadata?targetAddress=${address}&pageSize=100&pageNumber=1&order=desc&metadataType=0`);
@@ -13,25 +18,32 @@ export const fetchAccountName = async address => {
 	catch {}
 
 	if (!metadata?.data[0]) {
-		return null;
+		return info;
 	}
 
-	const scopedMetadataKey = encodeMetadataKey(METADATA_KEYS.ACCOUNT_NAME);
+	const nameScopedMetadataKey = encodeMetadataKey(METADATA_KEYS.ACCOUNT_NAME);
+	const bioScopedMetadataKey = encodeMetadataKey(METADATA_KEYS.ACCOUNT_BIO);
 	const encodedAddress = encodeAddress(address);
 
 	const nameMetadata = metadata.data.find(metadata => (
 		metadata.metadataEntry.sourceAddress === encodedAddress
 		&& metadata.metadataEntry.targetAddress === encodedAddress
-		&& metadata.metadataEntry.scopedMetadataKey === scopedMetadataKey
+		&& metadata.metadataEntry.scopedMetadataKey === nameScopedMetadataKey
+	));
+	const bioMetadata = metadata.data.find(metadata => (
+		metadata.metadataEntry.sourceAddress === encodedAddress
+		&& metadata.metadataEntry.targetAddress === encodedAddress
+		&& metadata.metadataEntry.scopedMetadataKey === bioScopedMetadataKey
 	));
 
-	if (!nameMetadata) {
-		return null;
+	if (nameMetadata) {
+		info.name = decodeTransactionMessage(nameMetadata.metadataEntry.value);
+	}
+	if (bioMetadata) {
+		info.bio = decodeTransactionMessage(bioMetadata.metadataEntry.value);
 	}
 
-	const name = decodeTransactionMessage(nameMetadata.metadataEntry.value);
-
-	return name;
+	return info;
 };
 
 export const fetchAccountPublicKey = async address => {

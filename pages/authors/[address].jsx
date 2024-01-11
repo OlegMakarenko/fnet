@@ -1,4 +1,4 @@
-import { fetchAccountName, fetchAccountPostPage, fetchAccountPublicKey, fetchPostActivity, fetchPostHistory, fetchPostInfo } from '@/api/index';
+import { fetchAuthorInfo, fetchAccountPostPage, fetchAccountPublicKey, fetchPostActivity, fetchPostHistory, fetchPostInfo } from '@/api/index';
 import styles from '@/styles/pages/AuthorAccount.module.scss';
 import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
@@ -24,9 +24,9 @@ import PostPreview from '@/components/PostPreview';
 export const getServerSideProps = async ({ locale, params }) => {
 	const { address } = params;
 
-	const name = await fetchAccountName(address);
+	const info = await fetchAuthorInfo(address);
 	const publicKey = await fetchAccountPublicKey(address);
-	const author = { address, publicKey, name };
+	const author = { address, publicKey, ...info };
 
 	if (!author) {
 		return {

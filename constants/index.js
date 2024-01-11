@@ -11,7 +11,8 @@ export const ACCOUNT_STATE_CHANGE_ACTION = {
 };
 
 export const METADATA_KEYS = {
-	ACCOUNT_NAME: 'fnet_account_name'
+	ACCOUNT_NAME: 'fnet_account_name',
+	ACCOUNT_BIO: 'fnet_account_bio'
 }
 
 export const SENDING_OPTIONS = {

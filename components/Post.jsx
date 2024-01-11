@@ -19,13 +19,11 @@ const Post = ({
 	text,
 	dateCreation,
 	dateEdition,
-	isEditable,
 	isLoading,
 	likeCount,
 	commentCount,
 	onLikeClick,
 	onCommentClick,
-	onEditClick
 }) => {
 	const { t } = useTranslation();
 	const authorName = author.name || t('label_anonymousAuthor');
@@ -61,7 +59,6 @@ const Post = ({
 					</div>
 				</div>
 			</div>
-			{isEditable && <Button onClick={onEditClick} className={styles.buttonEdit}>Edit Post</Button>}
 			<Markdown
 				className={styles.text}
 				components={{

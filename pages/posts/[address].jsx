@@ -1,4 +1,4 @@
-import { fetchAccountName, fetchPostActivity, fetchPostHistory, fetchPostInfo } from '@/api/index';
+import { fetchAuthorInfo, fetchPostActivity, fetchPostHistory, fetchPostInfo } from '@/api/index';
 import styles from '@/styles/pages/PostAccount.module.scss';
 import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
@@ -29,7 +29,7 @@ export const getServerSideProps = async ({ locale, params }) => {
 		};
 	}
 
-	const name = await fetchAccountName(data.author.address);
+	const { name } = await fetchAuthorInfo(data.author.address);
 
 	return {
 		props: {
@@ -96,8 +96,7 @@ const PostAccount = ({ author, initialPost, postAccount }) => {
 			</Head>
 			<Header />
 			<LayoutPost>
-				<div className="layout-flex-col">
-					<Card>
+				<div className="layout-flex-col-sections">
 						<div className="layout-flex-col">
 							<Post
 								author={author}
@@ -105,23 +104,21 @@ const PostAccount = ({ author, initialPost, postAccount }) => {
 								text={post.text}
 								dateCreation={creationDate}
 								dateEdition={editionDate}
-								isEditable={isPostEditable}
 								isLoading={isHistoryLoading || isActivityLoading}
 								likeCount={likeCount}
 								commentCount={commentCount}
 								onLikeClick={toggleLikePost}
 								onCommentClick={scrollToComments}
-								onEditClick={toggleEditPost}
 							/>
 							<div className={styles.actionPanel}>
 								<Button onClick={toggleCommentPost} icon="/images/button/comment.svg">{t('button_comment')}</Button>
-								<Button onClick={toggleLikePost} icon="/images/button/like.svg">{t('button_like')}</Button>
+								{isPostEditable && <Button onClick={toggleEditPost} icon="/images/button/edit-white.svg">{t('button_editPost')}</Button>}
+								{!isPostEditable && <Button onClick={toggleLikePost} icon="/images/button/like.svg">{t('button_like')}</Button>}
 								<Button icon="/images/button/share.svg" onClick={toggleShare}>{t('button_share')}</Button>
-								<Button icon="/images/button/xym.svg" onClick={toggleDonate}>{t('button_donate')}</Button>
+								{!isPostEditable && <Button icon="/images/button/xym.svg" onClick={toggleDonate}>{t('button_donate')}</Button>}
 							</div>
 						</div>
-					</Card>
-					<Card>
+
 						<div className="layout-flex-col" id="comments">
 							<h4>Comments</h4>
 							<div>
@@ -135,7 +132,7 @@ const PostAccount = ({ author, initialPost, postAccount }) => {
 								))}
 							</div>
 						</div>
-					</Card>
+
 
 					{/* {history?.map((post, index) => (
 						<Card>

@@ -8,7 +8,7 @@ import Field from '@/components/Field';
 import { isSymbolAddress, useDataManager, useStorage, useToggle } from '@/utils';
 import { SENDING_OPTIONS, STORAGE_KEY } from '@/constants';
 import ValueAccount from '@/components/ValueAccount';
-import { fetchAccountName, fetchAccountPublicKey } from '@/api/index';
+import { fetchAuthorInfo, fetchAccountPublicKey } from '@/api/index';
 import { useEffect, useState } from 'react';
 import TextBox from '@/components/TextBox';
 import Button from '@/components/Button';
@@ -22,6 +22,7 @@ import config from '@/config';
 import { FormAccountActivation } from '@/components/FormAccountActivation';
 import ButtonClose from '@/components/ButtonClose';
 import { useRouter } from 'next/router';
+import LoadingIndicator from '@/components/LoadingIndicator';
 
 export const getServerSideProps = async ({ locale }) => {
 	return {
@@ -34,6 +35,10 @@ export const getServerSideProps = async ({ locale }) => {
 const Settings = () => {
 	const { t } = useTranslation();
 	const router = useRouter()
+
+	const [addressInput, setAddressInput] = useState('');
+	const [isLoginOpen, toggleIsLoginOpen] = useToggle(false);
+
 	const [userLanguage, setUserLanguage] = useStorage(STORAGE_KEY.USER_LANGUAGE, 'en');
 	const [userCurrency, setUserCurrency] = useStorage(STORAGE_KEY.USER_CURRENCY, 'USD');
 	const [userAddress, setUserAddress] = useStorage(STORAGE_KEY.USER_ADDRESS, null);
@@ -41,14 +46,17 @@ const Settings = () => {
 	const [isAccountNameOpen, toggleAccountName] = useToggle(false);
 	const [isAccountActivationOpen, toggleAccountActivation] = useToggle(false);
 
-	const isAddressValid = userAddress && isSymbolAddress(userAddress);
+	const isAddressValid = addressInput && isSymbolAddress(addressInput);
 	const addressErrorMessage = !isAddressValid && 'Valid Symbol Address Required';
 
-	const [fetchDisplayedName, isNameLoading, name] = useDataManager((address) => fetchAccountName(address), '...');
+	const defaultAuthorInfo = { name: '...', bio: ''};
+	const [fetchDisplayedName, isNameLoading, authorInfo] = useDataManager((address) => fetchAuthorInfo(address), defaultAuthorInfo);
 	const [fetchPublicKey, isKeyLoading, publicKey] = useDataManager((address) => fetchAccountPublicKey(address), null);
 
-	const displayedName = (isAddressValid && name ) ? name : t('label_anonymousAuthor');
-	const isAccountNeedsActivation = !isKeyLoading && isAddressValid && !publicKey;
+	const displayedName = (!!userAddress && authorInfo.name ) ? authorInfo.name : t('label_anonymousAuthor');
+	const isAccountNeedsActivation = !isKeyLoading && !!userAddress && !publicKey;
+
+	const isLoading = isKeyLoading || isNameLoading;
 
 	const languages = [
 		{
@@ -57,12 +65,23 @@ const Settings = () => {
 		}
 	];
 
-	useEffect(() => {
+	const logout = () => {
+		setUserAddress('');
+		setAddressInput('');
+	}
+	const login = () => {
 		if (isAddressValid) {
+			setUserAddress(addressInput);
+			toggleIsLoginOpen();
+		}
+	}
+
+	useEffect(() => {
+		if (userAddress) {
 			fetchDisplayedName(userAddress);
 			fetchPublicKey(userAddress);
 		}
-	}, [userAddress, isAddressValid])
+	}, [userAddress])
 
 	return (
 		<div className={styles.wrapper}>
@@ -72,17 +91,32 @@ const Settings = () => {
 			<LayoutPost>
 				<Card>
 					<div className="layout-flex-col-fields">
-						<div className={styles.header}>
-							<Avatar value={userAddress} size="lg" />
-							<div className={styles.headerInfo}>
-								<div className={styles.name}>{displayedName}</div>
-								<ButtonPlain isDisabled={!isAddressValid} onClick={toggleAccountName}>Edit Name</ButtonPlain>
+						{!isLoginOpen && !!userAddress && (
+							<div className={styles.profile}>
+								<Avatar value={userAddress} size="xl" />
+								<div className={styles.profileInfo}>
+									<div className={styles.name}>{displayedName}</div>
+									<div className={styles.address}>ID: {userAddress}</div>
+									<div className={styles.bio}>{authorInfo.bio}</div>
+								</div>
 							</div>
+						)}
+						{isLoginOpen && (
+							<div className="layout-flex-col">
+								<Field title="Your Symbol Address">
+									<TextBox value={addressInput} onChange={(text) => setAddressInput(text.toUpperCase().trim())} errorMessage={addressErrorMessage} />
+								</Field>
+								<div className="layout-flex-row">
+									<Button isDisabled={!isAddressValid} onClick={login}>Log In</Button>
+								</div>
+							</div>
+						)}
+						<div className="layout-flex-row">
+							{!isLoginOpen && !userAddress && <Button onClick={toggleIsLoginOpen}>Add Account</Button>}
+							{!isLoginOpen && !!userAddress && <Button onClick={logout}>Log Out</Button>}
+							{isAccountNeedsActivation && <Button onClick={toggleAccountActivation}>Activate Account</Button>}
+							{!isAccountNeedsActivation && !!userAddress && <Button onClick={toggleAccountName}>Edit</Button>}
 						</div>
-						<Field title="Your Symbol Address">
-							<TextBox value={userAddress} onChange={(text) => setUserAddress(text.toUpperCase().trim())} errorMessage={addressErrorMessage} />
-						</Field>
-						{isAccountNeedsActivation && <Button onClick={toggleAccountActivation}>Activate Account</Button>}
 						<hr />
 						<h4>Sending Method</h4>
 						{!sendingOption && <Alert
@@ -138,19 +172,20 @@ const Settings = () => {
 						</Field>
 					</div>
 					<ButtonClose className={styles.buttonClose} onClick={() => router.back()} />
+					{isLoading && <div className={styles.loadingIndicator}><LoadingIndicator /></div>}
 				</Card>
 			</LayoutPost>
 			<FormAccountName
 				isVisible={isAccountNameOpen}
 				onClose={toggleAccountName}
 				accountAddress={userAddress}
-				currentName={name}
+				currentName={authorInfo.name}
+				currentBio={authorInfo.bio}
 			/>
 			<FormAccountActivation
 				isVisible={isAccountActivationOpen}
 				onClose={toggleAccountActivation}
 				accountAddress={userAddress}
-				currentName={name}
 			/>
 		</div>
 	);

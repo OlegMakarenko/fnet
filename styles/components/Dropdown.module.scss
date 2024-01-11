@@ -20,6 +20,7 @@
     cursor: pointer;
     transition: all 0.2s ease-in;
     user-select: none;
+    background-color: $color-textbox-bg;
 
     .icon {
         position: absolute;

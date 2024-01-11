@@ -145,14 +145,21 @@ export const createPostTransaction = (userPublicKey, postAccount, title, text) =
     return createTransactionSendingOptions(transaction, fields);
 }
 
-export const createAccountNameTransaction = (userPublicKey, targetAddress, currentName, newName) => {
+export const createAccountNameTransaction = (userPublicKey, targetAddress, currentName, newName, currentBio, newBio) => {
     const encoder = new TextEncoder();
-    const newValue = new Uint8Array([0, ...encoder.encode(newName || '')]);
-    const originalValue = new Uint8Array([0, ...encoder.encode(currentName || '')]);
-    const valueSizeDelta = currentName ? newValue.length - originalValue.length : newValue.length;
-    const xorValueUint8Array = metadataUpdateValue(originalValue, newValue);
-    const xorValue = new TextDecoder().decode(xorValueUint8Array)
-    const scopedMetadataKey = encodeMetadataKey(METADATA_KEYS.ACCOUNT_NAME);
+    const newNameValue = new Uint8Array([0, ...encoder.encode(newName || '')]);
+    const originalNameValue = new Uint8Array([0, ...encoder.encode(currentName || '')]);
+    const nameValueSizeDelta = currentName ? newNameValue.length - originalNameValue.length : newNameValue.length;
+    const xorNameValueUint8Array = metadataUpdateValue(originalNameValue, newNameValue);
+    const xorNameValue = new TextDecoder().decode(xorNameValueUint8Array)
+    const nameScopedMetadataKey = encodeMetadataKey(METADATA_KEYS.ACCOUNT_NAME);
+
+    const newBioValue = new Uint8Array([0, ...encoder.encode(newBio || '')]);
+    const originalBioValue = new Uint8Array([0, ...encoder.encode(currentBio || '')]);
+    const bioValueSizeDelta = currentBio ? newBioValue.length - originalBioValue.length : newBioValue.length;
+    const xorBioValueUint8Array = metadataUpdateValue(originalBioValue, newBioValue);
+    const xorBioValue = new TextDecoder().decode(xorBioValueUint8Array)
+    const bioScopedMetadataKey = encodeMetadataKey(METADATA_KEYS.ACCOUNT_BIO);
 
     const embeddedTransactionsFields = [];
     const embeddedTransactions = [];
@@ -160,17 +167,33 @@ export const createAccountNameTransaction = (userPublicKey, targetAddress, curre
         type: 'account_metadata_transaction_v1',
         signerPublicKey: userPublicKey,
         targetAddress,
-        scopedMetadataKey: BigInt('0x' + scopedMetadataKey),
-        value: xorValue,
-        valueSizeDelta
+        scopedMetadataKey: BigInt('0x' + nameScopedMetadataKey),
+        value: xorNameValue,
+        valueSizeDelta: nameValueSizeDelta
     }));
     embeddedTransactionsFields.push({
         type: 'account_metadata_transaction_v1',
         signerPublicKey: userPublicKey,
         targetAddress,
-        scopedMetadataKey,
-        value: xorValue,
-        valueSizeDelta
+        scopedMetadataKey: nameScopedMetadataKey,
+        value: xorNameValue,
+        valueSizeDelta: nameValueSizeDelta
+    })
+    embeddedTransactions.push(facade.transactionFactory.createEmbedded({
+        type: 'account_metadata_transaction_v1',
+        signerPublicKey: userPublicKey,
+        targetAddress,
+        scopedMetadataKey: BigInt('0x' + bioScopedMetadataKey),
+        value: xorBioValue,
+        valueSizeDelta: bioValueSizeDelta
+    }));
+    embeddedTransactionsFields.push({
+        type: 'account_metadata_transaction_v1',
+        signerPublicKey: userPublicKey,
+        targetAddress,
+        scopedMetadataKey: bioScopedMetadataKey,
+        value: xorBioValue,
+        valueSizeDelta: bioValueSizeDelta
     })
     const merkleHash = facade.constructor.hashEmbeddedTransactions(embeddedTransactions);
     const transaction = facade.transactionFactory.create({

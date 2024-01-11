@@ -72,7 +72,14 @@ export const FormTransaction = ({ children, postAccount, type, data, onClose }) 
 			case MESSAGE_TYPES.ACCOUNT_NAME: {
 				setTitle('Edit Name');
 				if (!userPublicKey || !userAddress) return;
-				setTransaction(createAccountNameTransaction(userPublicKey, userAddress, data.currentName, data.name));
+				setTransaction(createAccountNameTransaction(
+					userPublicKey,
+					userAddress,
+					data.currentName,
+					data.name,
+					data.currentBio,
+					data.bio
+				));
 				break;
 			}
 			case MESSAGE_TYPES.ACCOUNT_ACTIVATION: {
@@ -82,7 +89,7 @@ export const FormTransaction = ({ children, postAccount, type, data, onClose }) 
 				break;
 			}
 			case MESSAGE_TYPES.DONATE: {
-				setTitle('Donate Author');
+				setTitle('Donate to Author');
 				setTransaction(createDonationTransaction(data.address, data.amount));
 				break;
 			}

@@ -157,6 +157,13 @@ a {
     gap: $spacing-fields;
 }
 
+.layout-flex-col-sections {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-section-gap;
+    padding: $spacing-padding 0;
+}
+
 .stripes {
     &>*:nth-child(even) {
         background-color: #fcfcfc;
