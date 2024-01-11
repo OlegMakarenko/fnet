@@ -23,6 +23,7 @@ import { FormAccountActivation } from '@/components/FormAccountActivation';
 import ButtonClose from '@/components/ButtonClose';
 import { useRouter } from 'next/router';
 import LoadingIndicator from '@/components/LoadingIndicator';
+import Profile from '@/components/Profile';
 
 export const getServerSideProps = async ({ locale }) => {
 	return {
@@ -53,9 +54,7 @@ const Settings = () => {
 	const [fetchDisplayedName, isNameLoading, authorInfo] = useDataManager((address) => fetchAuthorInfo(address), defaultAuthorInfo);
 	const [fetchPublicKey, isKeyLoading, publicKey] = useDataManager((address) => fetchAccountPublicKey(address), null);
 
-	const displayedName = (!!userAddress && authorInfo.name ) ? authorInfo.name : t('label_anonymousAuthor');
 	const isAccountNeedsActivation = !isKeyLoading && !!userAddress && !publicKey;
-
 	const isLoading = isKeyLoading || isNameLoading;
 
 	const languages = [
@@ -92,14 +91,11 @@ const Settings = () => {
 				<Card>
 					<div className="layout-flex-col-fields">
 						{!isLoginOpen && !!userAddress && (
-							<div className={styles.profile}>
-								<Avatar value={userAddress} size="xl" />
-								<div className={styles.profileInfo}>
-									<div className={styles.name}>{displayedName}</div>
-									<div className={styles.address}>ID: {userAddress}</div>
-									<div className={styles.bio}>{authorInfo.bio}</div>
-								</div>
-							</div>
+							<Profile
+								name={authorInfo.name}
+								address={userAddress}
+								bio={authorInfo.bio}
+							/>
 						)}
 						{isLoginOpen && (
 							<div className="layout-flex-col">

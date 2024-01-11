@@ -20,36 +20,6 @@
     height: $spacing-base * 7;
 }
 
-.profile {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: $spacing-base;
-    width: 100%;
-    text-align: center;
-}
-
-.profileInfo {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: $spacing-base;
-}
-
-.name {
-    font: $font-h4;
-}
-
-.address {
-    color: $color-text-address;
-    font: $font-author-address;
-}
-
-.bio {
-    max-width: 75%;
-    font: $font-author-bio;
-}
-
 .buttonClose {
     position: absolute;
     top: $spacing-padding;
@@ -67,8 +37,9 @@
     top: 0;
     left: 0;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    padding: $spacing-padding;
 }
 
 

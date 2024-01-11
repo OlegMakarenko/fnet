@@ -34,8 +34,9 @@ const PostPreview = ({
 				</div>
 			</div>
 			{/* {!!title && <div className={styles.title}>{title}</div>} */}
+			<div className={styles.title}>{title || 'Post without title...'}</div>
 			<div className={styles.text}>
-				<div className={styles.title}>{title}</div>
+
 				{!!imageUrl && <img src={imageUrl} />}
 			</div>
 		</Link>

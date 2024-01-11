@@ -20,6 +20,7 @@ import { FormDonate } from '@/components/FormDonate';
 import Avatar from '@/components/Avatar';
 import PageLoader from '@/components/PageLoader';
 import PostPreview from '@/components/PostPreview';
+import Profile from '@/components/Profile';
 
 export const getServerSideProps = async ({ locale, params }) => {
 	const { address } = params;
@@ -61,14 +62,8 @@ const AuthorAccount = ({ author  }) => {
 			<Header />
 			<LayoutPost>
 				<div className="layout-flex-col">
-					<Card>
-						<div className={styles.profile}>
-							<Avatar value={author.address} size="xl" />
-							<div className={styles.profileInfo}>
-								<div className={styles.name}>{authorName}</div>
-							</div>
-						</div>
-					</Card>
+					<Profile address={author.address} name={authorName} bio={author.bio} />
+					<br />
 					{postPagination.data.map((post, index) => (
 						<Card>
 							<PostPreview
