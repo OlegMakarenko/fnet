@@ -20,7 +20,7 @@ const PageLoader = ({ pagination }) => {
 
 	return (
 		<div className={styles.root}>
-			{!data.length && <div className={styles.emptyListMessage}>{t('message_emptyTable')}</div>}
+			{!data.length && !isLoading && <div className={styles.emptyListMessage}>{t('message_emptyTable')}</div>}
 			{!isLastPage && !isError && (
 				<div className={styles.tablePageLoader}>
 					<div ref={refLoadingTarget} />

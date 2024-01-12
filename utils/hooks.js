@@ -322,3 +322,32 @@ export const useAsyncCall = (callback, defaultData, onError, repeatInterval) => 
 
 	return data;
 };
+
+
+export const useAuthorInfo = (authors, fetchFunction) => {
+	const [authorInfoMap, setAuthorInfoMap] = useState({});
+	const missingAuthors = authors.filter(author => !authorInfoMap[author.address]);
+
+	const fetchAndUpdateInfo = async (authors, authorInfoMap) => {
+		const authorInfos = await Promise.all(authors.map(async author => {
+			const authorInfo = await fetchFunction(author.address);
+
+			return {
+				...author,
+				...authorInfo
+			}
+		}));
+
+		const newAuthorInfoMap = {...authorInfoMap};
+		authorInfos.forEach(author => newAuthorInfoMap[author.address] = author);
+		setAuthorInfoMap(newAuthorInfoMap);
+	}
+
+	useEffect(() => {
+		if (missingAuthors.length) {
+			fetchAndUpdateInfo(missingAuthors, authorInfoMap);
+		}
+	}, [missingAuthors, authorInfoMap])
+
+	return authorInfoMap;
+}

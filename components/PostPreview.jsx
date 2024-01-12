@@ -14,14 +14,15 @@ const PostPreview = ({
 	isLoading,
 }) => {
 	const { t } = useTranslation();
-	const authorName = author.name || t('label_anonymousAuthor');
-	const imageUrl = text.match(/!\[.*?\]\((.*?)\)/)?.[1];
+	const authorName = author?.name || t('label_anonymousAuthor');
+	//const imageUrl = text.match(/!\[.*?\]\((.*?)\)/)?.[1];
 
 	return (
 		<Link className={`${styles.postPreview} ${isLoading && styles.post__loading}`} href={createPageHref('posts', address)}>
 			<div className={styles.header}>
 				<div className={styles.avatarAndInfo}>
 					<div className={styles.headerInfo}>
+						{!!author && <Link href={createPageHref('authors', author.address)} className={styles.author}>{authorName}</Link>}
 						{!dateCreation && <div className={styles.date}>
 							Processing...
 						</div>}
@@ -31,12 +32,7 @@ const PostPreview = ({
 					</div>
 				</div>
 			</div>
-			{/* {!!title && <div className={styles.title}>{title}</div>} */}
 			<div className={styles.title}>{title || 'Post without title...'}</div>
-			<div className={styles.text}>
-
-				{/* {!!imageUrl && <img src={imageUrl} />} */}
-			</div>
 		</Link>
 	);
 };

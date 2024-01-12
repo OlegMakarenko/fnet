@@ -1,15 +1,14 @@
 import config from '@/config';
 import { createAPICallFunction, createPage, decodeAddress, decodeTransactionMessage, formatTimestamp, makeRequest, publicKeyToAddress } from '@/utils';
-import { getNodeUrl } from './blockchain';
+import { fetchNodeList, getNodeUrl } from './blockchain';
 import { MESSAGE_TYPES } from '@/constants';
 
-const fetchAllPages = async (fetchFn) => {
-	const MAX_PAGES = 25;
+const fetchAllPages = async (fetchFn, maxPages = 25) => {
 	let isLastPage = false;
 	let pageNumber = 1;
 	const finalData = [];
 
-	while (!isLastPage || pageNumber >= MAX_PAGES) {
+	while (!isLastPage && pageNumber <= maxPages) {
 		const { data } = await fetchFn(pageNumber);
 		pageNumber = pageNumber + 1;
 		isLastPage = data.length === 0;
@@ -18,7 +17,6 @@ const fetchAllPages = async (fetchFn) => {
 
 	return finalData;
 }
-
 
 export const fetchPostInfo = createAPICallFunction(async address => {
 	const nodeUrl = await getNodeUrl();
@@ -48,7 +46,6 @@ export const fetchPostInfo = createAPICallFunction(async address => {
 
 	const authorPublicKey = transaction.signerPublicKey;
 	const authorAddress = publicKeyToAddress(authorPublicKey, config.NETWORK_TYPE);
-
 
 	return {
 		author: {
@@ -102,7 +99,10 @@ export const fetchPostActivity = async (postAddress) => {
 			comments.push({
 				timestamp,
 				text: message.value,
-				authorAddress: publicKeyToAddress(transaction.signerPublicKey, config.NETWORK_TYPE),
+				author: {
+					address: publicKeyToAddress(transaction.signerPublicKey, config.NETWORK_TYPE),
+					publicKey: transaction.signerPublicKey,
+				}
 			});
 
 		}
@@ -119,8 +119,42 @@ export const fetchPostActivity = async (postAddress) => {
 export const fetchAccountPostPage = async (searchCriteria, author) => {
 	const { pageNumber } = searchCriteria;
 	const nodeUrl = await getNodeUrl();
-	const transactions = await makeRequest(`${nodeUrl}/transactions/confirmed?signerPublicKey=${author.publicKey}&type=16724&pageSize=500&pageNumber=${pageNumber}&order=desc&embedded=true`)
+	let url = `${nodeUrl}/transactions/confirmed?type=16724&pageSize=500&pageNumber=${pageNumber}&order=desc&embedded=true`;
+
+	if (author) {
+		url = url + `&signerPublicKey=${author.publicKey}`;
+	}
+
+	const transactions = await makeRequest(url);
 	const posts = formatPostTransactions(transactions.data);
+
+	return createPage(posts, pageNumber);
+};
+
+export const fetchRecentPostPage = async (searchCriteria) => {
+	const aggregateTransactionType = 16705;
+	const transferTransactionType = 16724;
+	const { pageNumber } = searchCriteria;
+	const nodeUrl = await getNodeUrl();
+	const nodeList = await fetchNodeList();
+	const aggregateTransactions = await makeRequest(`${nodeUrl}/transactions/confirmed?type=${aggregateTransactionType}&pageSize=100&pageNumber=${pageNumber}&order=desc`);
+
+	const aggregateTransactionDetails = await Promise.all(aggregateTransactions.data.map(transaction => {
+		const nodeUrl = nodeList[Math.floor(Math.random() * nodeList.length)];
+		const { hash } = transaction.meta;
+
+		return makeRequest(`${nodeUrl}/transactions/confirmed/${hash}`);
+	}));
+
+	const transactions = [];
+
+	aggregateTransactionDetails.forEach((transaction) => {
+		const innerTransfers = transaction.transaction.transactions.filter((innerTransaction) => innerTransaction.transaction.type === transferTransactionType);
+
+		transactions.push(...innerTransfers);
+	});
+
+	const posts = formatPostTransactions(transactions);
 
 	return createPage(posts, pageNumber);
 };
@@ -153,7 +187,11 @@ const formatPostTransactions = (transactions) => {
 			postMap[hash] = {
 				timestamp: formatTimestamp(meta.timestamp),
 				messages: [],
-				address: decodeAddress(transaction.recipientAddress)
+				address: decodeAddress(transaction.recipientAddress),
+				author: {
+					publicKey: transaction.signerPublicKey,
+					address: publicKeyToAddress(transaction.signerPublicKey, config.NETWORK_TYPE)
+				}
 			}
 		}
 
@@ -167,7 +205,8 @@ const formatPostTransactions = (transactions) => {
 			address: post.address,
 			title: titleMessage,
 			text: textMessages.join(' '),
-			timestamp: post.timestamp
+			timestamp: post.timestamp,
+			author: post.author
 		}
 	})
 

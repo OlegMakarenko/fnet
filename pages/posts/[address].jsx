@@ -7,7 +7,7 @@ import Post from '@/components/Post';
 import LayoutPost from '@/components/LayoutPost';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
-import { useDataManager, useStorage, useToggle } from '@/utils';
+import { useAuthorInfo, useDataManager, useStorage, useToggle } from '@/utils';
 import { FormEditPost } from '@/components/FormEditPost';
 import { useCallback, useEffect, useState } from 'react';
 import { FormLikePost } from '@/components/FormLikePost';
@@ -61,6 +61,8 @@ const PostAccount = ({ author, initialPost, postAccount }) => {
 	const [fetchHistory, isHistoryLoading, history] = useDataManager(() => fetchPostHistory(postAccount.address, author), [], console.error);
 	const [fetchActivity, isActivityLoading, activity] = useDataManager(() => fetchPostActivity(postAccount.address), {}, console.error);
 	const post = history[0] || initialPost;
+
+	const authorInfoMap = useAuthorInfo(activity.comments?.map(comment => comment.author) || [], fetchAuthorInfo);
 
 	const scrollToComments = useCallback(() => {
 		const yOffset = -100;
@@ -124,7 +126,7 @@ const PostAccount = ({ author, initialPost, postAccount }) => {
 							<div>
 								{activity?.comments?.map((comment, index) => (
 									<Comment
-										authorAddress={comment.authorAddress}
+										author={authorInfoMap[comment.author.address]}
 										text={comment.text}
 										timestamp={comment.timestamp}
 										key={index}

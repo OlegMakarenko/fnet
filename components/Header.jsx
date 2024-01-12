@@ -17,9 +17,9 @@ const Header = () => {
 
 	return (
 		<header className={styles.header}>
-			<div className={styles.headerLogo}>
+			<Link className={styles.headerLogo} href={createPageHref('home')}>
 				<Image src="/images/logo.svg" fill alt="Logo" />
-			</div>
+			</Link>
 			<div className={styles.headerRightSection}>
 				{!!userAddress && <Button onClick={toggleCreatePost}>Create New Post</Button>}
 				<Link href={createPageHref('settings')}>
