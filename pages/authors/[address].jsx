@@ -62,19 +62,19 @@ const AuthorAccount = ({ author  }) => {
 			<Header />
 			<LayoutPost>
 				<div className="layout-flex-col">
-					<Profile address={author.address} name={authorName} bio={author.bio} />
+					<Card>
+						<Profile address={author.address} name={authorName} bio={author.bio} />
+					</Card>
 					<br />
 					{postPagination.data.map((post, index) => (
-						<Card>
-							<PostPreview
-								address={post.address}
-								author={author}
-								title={post.title}
-								text={post.text}
-								dateCreation={post.timestamp}
-								key={index}
-							/>
-						</Card>
+						<PostPreview
+							address={post.address}
+							author={author}
+							title={post.title}
+							text={post.text}
+							dateCreation={post.timestamp}
+							key={index}
+						/>
 					))}
 					<PageLoader pagination={postPagination} />
 				</div>

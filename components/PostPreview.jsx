@@ -2,7 +2,7 @@ import Avatar from './Avatar';
 import ValueAge from './ValueAge';
 import { createPageHref } from 'utils/client';
 import { useTranslation } from 'next-i18next';
-import styles from '@/styles/components/Post.module.scss';
+import styles from '@/styles/components/PostPreview.module.scss';
 import Link from 'next/link';
 
 const PostPreview = ({
@@ -18,12 +18,10 @@ const PostPreview = ({
 	const imageUrl = text.match(/!\[.*?\]\((.*?)\)/)?.[1];
 
 	return (
-		<Link className={`${styles.post} ${isLoading && styles.post__loading}`} href={createPageHref('posts', address)}>
+		<Link className={`${styles.postPreview} ${isLoading && styles.post__loading}`} href={createPageHref('posts', address)}>
 			<div className={styles.header}>
 				<div className={styles.avatarAndInfo}>
-					<Avatar value={author.address} size="md" />
 					<div className={styles.headerInfo}>
-						<div href={createPageHref('authors', author.address)} className={styles.author}>{authorName}</div>
 						{!dateCreation && <div className={styles.date}>
 							Processing...
 						</div>}
@@ -37,7 +35,7 @@ const PostPreview = ({
 			<div className={styles.title}>{title || 'Post without title...'}</div>
 			<div className={styles.text}>
 
-				{!!imageUrl && <img src={imageUrl} />}
+				{/* {!!imageUrl && <img src={imageUrl} />} */}
 			</div>
 		</Link>
 	);
