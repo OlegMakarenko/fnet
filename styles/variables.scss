@@ -35,6 +35,9 @@ $color-danger-dark: #a44f55;
 $color-textbox-border: #0B0118;
 $color-textbox-bg: #FFF;
 $color-button-bg: $color-primary;
+$color-button-text: $color-primary;
+$color-button-primary-text: #fff;
+$color-button-primary-bg: $color-primary;
 $color-button-bg-disabled: #A8A6A6;
 $color-radio-inactive: rgba(25, 41, 97, 10%);
 $color-radio-active: $color-primary;
@@ -42,20 +45,6 @@ $color-radio-content-active: $color-primary-light;
 $color-likes: #A44F55;
 $color-comments: #274586;
 $color-border-list-separator: rgba(25, 41, 97, 5%);
-
-
-// Borders
-$border-radius-card: 1rem;
-$border-radius-label: 1rem;
-$border-radius-input: 0.33rem;
-$border-radius-chip: 0.5rem;
-$border-radius-radio-content: 1rem;
-$border-radius-filter: 1.5rem;
-$border-radius-button: 1rem;
-$border-width-textbox: 0.083rem;
-$border-width-dropdown: 0.083rem;
-$border-list-separator: 0.083rem;
-
 
 // Spacings General
 $spacing-base: calc(1rem / 1.75);
@@ -68,6 +57,19 @@ $spacing-navigation-height: $spacing-base * 8;
 $spacing-heading-margin: $spacing-base;
 $spacing-textbox-height: $spacing-base * 4;
 $spacing-button-height: $spacing-base * 4;
+
+// Borders
+$border-radius-card: 1rem;
+$border-radius-label: 1rem;
+$border-radius-input: 0.33rem;
+$border-radius-chip: 0.5rem;
+$border-radius-radio-content: 1rem;
+$border-radius-filter: 1.5rem;
+$border-radius-button: 1rem;
+$border-width-textbox: 0.083rem;
+$border-width-dropdown: 0.083rem;
+$border-list-separator: 0.083rem;
+$border-width-control: $spacing-base / 4;
 
 // Spacings Large
 $spacing-content-container-width-large: $spacing-base * 152;
