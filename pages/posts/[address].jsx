@@ -113,11 +113,11 @@ const PostAccount = ({ author, initialPost, postAccount }) => {
 								onCommentClick={scrollToComments}
 							/>
 							<div className={styles.actionPanel}>
-								<Button onClick={toggleCommentPost} icon="/images/button/comment-primary.svg">{t('button_comment')}</Button>
-								{isPostEditable && <Button onClick={toggleEditPost} icon="/images/button/edit-primary.svg">{t('button_editPost')}</Button>}
-								{!isPostEditable && <Button onClick={toggleLikePost} icon="/images/button/like-primary.svg">{t('button_like')}</Button>}
-								<Button icon="/images/button/share-primary.svg" onClick={toggleShare}>{t('button_share')}</Button>
-								{!isPostEditable && <Button icon="/images/button/xym-primary.svg" onClick={toggleDonate}>{t('button_donate')}</Button>}
+								<Button onClick={toggleCommentPost} icon="/images/button/comment.svg">{t('button_comment')}</Button>
+								{isPostEditable && <Button onClick={toggleEditPost} icon="/images/button/edit-white.svg">{t('button_editPost')}</Button>}
+								{!isPostEditable && <Button onClick={toggleLikePost} icon="/images/button/like.svg">{t('button_like')}</Button>}
+								<Button icon="/images/button/share.svg" onClick={toggleShare}>{t('button_share')}</Button>
+								{!isPostEditable && <Button icon="/images/button/xym.svg" onClick={toggleDonate}>{t('button_donate')}</Button>}
 							</div>
 						</div>
 
