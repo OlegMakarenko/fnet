@@ -70,38 +70,72 @@ export const truncateDecimals = (num, decimal) => {
 };
 
 export const chunkString = (s, maxBytes) => {
-    const decoder = new TextDecoder('utf-8');
+	const decoder = new TextDecoder('utf-8');
 	const chunks = [];
-    let buf = new TextEncoder('utf-8').encode(s);
+	let buf = new TextEncoder('utf-8').encode(s);
 
-    while (buf.length) {
-        let i = buf.lastIndexOf(32, maxBytes+1);
-        // If no space found, try forward search
-        if (i < 0) i = buf.indexOf(32, maxBytes);
-        // If there's no space at all, take all
-        if (i < 0) i = buf.length;
-        // This is a safe cut-off point; never half-way a multi-byte
-        chunks.push(decoder.decode(buf.slice(0, i)));
-        buf = buf.slice(i+1); // Skip space (if any)
-    }
+	while (buf.length) {
+		let i = buf.lastIndexOf(32, maxBytes + 1);
+		// If no space found, try forward search
+		if (i < 0) i = buf.indexOf(32, maxBytes);
+		// If there's no space at all, take all
+		if (i < 0) i = buf.length;
+		// This is a safe cut-off point; never half-way a multi-byte
+		chunks.push(decoder.decode(buf.slice(0, i)));
+		buf = buf.slice(i + 1); // Skip space (if any)
+	}
 
 	return chunks;
 }
 
 export const isSymbolAddress = (address) => {
-    if (typeof address !== 'string') {
-        return false;
-    }
+	if (typeof address !== 'string') {
+		return false;
+	}
 
-    const addressTrimAndUpperCase = address.trim().toUpperCase().replace(/-/g, '');
+	const addressTrimAndUpperCase = address.trim().toUpperCase().replace(/-/g, '');
 
-    if (addressTrimAndUpperCase.length !== 39) {
-        return false;
-    }
+	if (addressTrimAndUpperCase.length !== 39) {
+		return false;
+	}
 
-    if (addressTrimAndUpperCase.charAt(0) !== 'T' && addressTrimAndUpperCase.charAt(0) !== 'N') {
-        return false;
-    }
+	if (addressTrimAndUpperCase.charAt(0) !== 'T' && addressTrimAndUpperCase.charAt(0) !== 'N') {
+		return false;
+	}
 
-    return true;
+	return true;
 };
+
+
+export const mergeUint8Arrays = (arrays) => {
+	// Get the total length of all arrays.
+	let length = 0;
+	arrays.forEach(item => {
+		length += item.length;
+	});
+
+	// Create a new array with total length and merge all source arrays.
+	const mergedArray = new Uint8Array(length);
+	let offset = 0;
+	arrays.forEach(item => {
+		mergedArray.set(item, offset);
+		offset += item.length;
+	});
+
+	return mergedArray;
+}
+
+export const splitUint8Array = (array, size) => {
+	const arrays = [];
+	const totalChunkNumber = Math.ceil(array.length / size);
+
+	let chunkNumber = 0;
+	while(chunkNumber < totalChunkNumber) {
+		const startPosition = chunkNumber * size;
+		const endPosition = (chunkNumber + 1) * size;
+		arrays.push(new Uint8Array(array.subarray(startPosition,endPosition)));
+		chunkNumber ++;
+	}
+
+	return arrays;
+}

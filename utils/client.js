@@ -101,3 +101,15 @@ export const createPageHref = (pageName, parameter) => {
 
 	return href;
 };
+
+
+export const fileToBase64 = file => new Promise((resolve, reject) => {
+	const reader = new FileReader();
+	reader.readAsDataURL(file);
+	reader.onload = () => resolve(reader.result);
+	reader.onerror = reject;
+});
+
+export const hexToBase64 = str => {
+	return Buffer.from(str, 'hex').toString('base64');
+}

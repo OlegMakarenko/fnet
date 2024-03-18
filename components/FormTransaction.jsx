@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { createAccountActivationTransaction, createAccountNameTransaction, createCommentTransaction, createDonationTransaction, createLikeTransaction, createPageHref, createPostTransaction, signWithSSS, useDataManager, useStorage } from '@/utils';
+import { createAccountActivationTransaction, createAccountNameTransaction, createCommentTransaction, createDonationTransaction, createGalleryImageTransaction, createLikeTransaction, createPageHref, createPostTransaction, signWithSSS, useDataManager, useStorage } from '@/utils';
 import Field from './Field';
 import Button from './Button';
 import { MESSAGE_TYPES, SENDING_OPTIONS, STORAGE_KEY } from '@/constants';
@@ -15,6 +15,7 @@ import styles from '@/styles/components/FormTransaction.module.scss';
 const typesRequiredPublicKey = [
 	MESSAGE_TYPES.POST,
 	MESSAGE_TYPES.ACCOUNT_NAME,
+	MESSAGE_TYPES.GALLERY_IMAGE
 ];
 
 export const FormTransaction = ({ children, postAccount, type, data, onClose }) => {
@@ -46,7 +47,6 @@ export const FormTransaction = ({ children, postAccount, type, data, onClose }) 
 			}
 			onClose();
 		} catch (error) {
-			console.error(error)
 			toast.error(error.message);
 		}
 	};
@@ -91,6 +91,12 @@ export const FormTransaction = ({ children, postAccount, type, data, onClose }) 
 			case MESSAGE_TYPES.DONATE: {
 				setTitle('Donate to Author');
 				setTransaction(createDonationTransaction(data.address, data.amount));
+				break;
+			}
+			case MESSAGE_TYPES.GALLERY_IMAGE: {
+				setTitle('Upload Image');
+				if (!userPublicKey) return;
+				setTransaction(createGalleryImageTransaction(userPublicKey, data.image));
 				break;
 			}
 			default: break;

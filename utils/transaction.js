@@ -1,12 +1,14 @@
 import { requestSign, setTransaction } from 'sss-module';
 import { ChronoUnit, Instant } from '@js-joda/core';
-import { MAX_VALUE_SIZE, MESSAGE_TYPES, METADATA_KEYS } from '@/constants';
-import { chunkString } from './format';
+import { MAX_MESSAGE_BYTE_SIZE, MAX_MESSAGE_VALUE_SIZE, MESSAGE_TYPES, METADATA_KEYS } from '@/constants';
+import { chunkString, splitUint8Array } from './format';
 import symbolSdk from 'symbol-sdk';
 import { sha3_256 } from 'js-sha3';
 import { metadataUpdateValue } from 'symbol-sdk/src/symbol/metadata';
 import { TransactionMapping, UInt64 } from 'old-symbol-sdk';
 import config from '@/config';
+import { uint8ToHex } from 'symbol-sdk/src/utils/converter.js';
+
 const facade = new symbolSdk.facade.SymbolFacade('testnet');
 const GENERATION_HASH = '49D6E1CE276A85B70EAFE52349AACCA389302E7A9754BCF1221E79494FC665A4';
 
@@ -14,8 +16,8 @@ export const networkTypeToNetworkIdentifier = (networkType) => {
     return (networkType === 152 || networkType === '152') ? 'testnet' : 'mainnet';
 }
 
-export const publicKeyToAddress = (publicKey, networkType) => {
-    const facade = new symbolSdk.facade.SymbolFacade(networkTypeToNetworkIdentifier(networkType));
+export const publicKeyToAddress = (publicKey) => {
+    const facade = new symbolSdk.facade.SymbolFacade(networkTypeToNetworkIdentifier(config.NETWORK_TYPE));
     const publicKeyArray = new symbolSdk.PublicKey(publicKey);
 
     return facade.network.publicKeyToAddress(publicKeyArray).toString();
@@ -103,7 +105,7 @@ export const createPostTransaction = (userPublicKey, postAccount, title, text) =
         value: title,
     }
 
-    const textChunks = chunkString(text, MAX_VALUE_SIZE);
+    const textChunks = chunkString(text, MAX_MESSAGE_VALUE_SIZE);
     const textMessageList = textChunks.map((item, index) => ({
         type: MESSAGE_TYPES.POST,
         index: index + 1,
@@ -239,6 +241,69 @@ export const createDonationTransaction = (address, amount) => {
     return createTransactionSendingOptions(transaction, fields);
 }
 
+export const createGalleryImageTransaction = (userPublicKey, image) => {
+    const userAddress = publicKeyToAddress(userPublicKey)
+    const headerMessage = {
+        type: MESSAGE_TYPES.GALLERY_IMAGE,
+    }
+
+    const imageUint8ArrayChunks = splitUint8Array(image, MAX_MESSAGE_BYTE_SIZE);
+
+    //imageUint8ArrayChunks.forEach((message, i) => console.log(`${i + 2}. message(${message.byteLength})`));
+    console.log('Inner Transactions:', imageUint8ArrayChunks.length + 1)
+
+    if (imageUint8ArrayChunks.length > 99) console.error('Too many txs')
+
+    const embeddedTransactionsFields = [];
+    const embeddedTransactions = [];
+    embeddedTransactions.push(facade.transactionFactory.createEmbedded({
+        type: 'transfer_transaction_v1',
+        recipientAddress: userAddress,
+        signerPublicKey: userPublicKey,
+        message: createTransactionMessage(JSON.stringify(headerMessage)),
+        mosaics: []
+    }));
+    embeddedTransactionsFields.push({
+        type: 'transfer_transaction_v1',
+        recipientAddress: userAddress,
+        signerPublicKey: userPublicKey,
+        message: headerMessage,
+        mosaics: []
+    });
+    imageUint8ArrayChunks.forEach(messageUint8Array => {
+        embeddedTransactions.push(facade.transactionFactory.createEmbedded({
+            type: 'transfer_transaction_v1',
+            recipientAddress: userAddress,
+            signerPublicKey: userPublicKey,
+            message: messageUint8Array,
+            mosaics: []
+        }));
+        embeddedTransactionsFields.push({
+            type: 'transfer_transaction_v1',
+            recipientAddress: userAddress,
+            signerPublicKey: userPublicKey,
+            message: messageUint8Array,
+            mosaics: []
+        });
+    });
+
+    const merkleHash = facade.constructor.hashEmbeddedTransactions(embeddedTransactions);
+    const transaction = facade.transactionFactory.create({
+        type: 'aggregate_complete_transaction_v2',
+        deadline: createTransactionDeadline(),
+		transactionsHash: merkleHash,
+		transactions: embeddedTransactions,
+        signerPublicKey: userPublicKey,
+    });
+    const fields = {
+        type: 'aggregate_complete_transaction_v2',
+        deadline: createTransactionDeadline().toString(),
+        transactions: embeddedTransactionsFields
+    }
+
+    return createTransactionSendingOptions(transaction, fields);
+}
+
 export const createTransactionSendingOptions = (transaction, fields) => {
     const payload = symbolSdk.utils.uint8ToHex(transaction.serialize());
     const uri = `web+symbol://transaction?data=${payload}&generationHash=${GENERATION_HASH}`;
@@ -293,9 +358,9 @@ export const signWithSSS = async (transaction) => {
 	// Get transaction fee multipliers
 	// const nodeUrl = await getNodeUrl();
 	// const feeMultipliers = await makeRequest(`${nodeUrl}/network/fees/transaction`);
-
+    console.log(transaction)
 	// Calculate average fee
-	const fee = transaction.size * 100; // feeMultipliers.averageFeeMultiplier;
+	const fee = transaction.size * 150; // feeMultipliers.averageFeeMultiplier;
     transaction.maxFee = UInt64.fromUint(fee);
 
 	// Request SSS to sign transaction

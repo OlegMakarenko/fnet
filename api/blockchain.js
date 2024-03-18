@@ -4,8 +4,18 @@ import { makeRequest } from '@/utils';
 export const fetchNodeList = async () => {
     try {
         const nodes = await makeRequest(config.NODELIST_URL);
+        const urls = nodes.map((node) => node.apiStatus.restGatewayUrl);
+        const results = await Promise.allSettled(urls.map(async url => {
+            await makeRequest(`${url}/node/info`);
 
-        return nodes.map((node) => node.apiStatus.restGatewayUrl);
+            return url;
+        }));
+
+        const filteredUrls = [];
+
+        results.forEach(result => result.value ? filteredUrls.push(result.value) : null);
+
+        return filteredUrls;
     }
     catch(error) {
         console.error('Error: [blockchain] failed to fetch node list. Use default', error.message);
