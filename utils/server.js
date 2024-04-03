@@ -70,15 +70,14 @@ export const createAPICallFunction =
 	};
 
 export const makeRequest = async (url, options = {}) => {
-	// TODO: add timeout
-	// const { timeout = config.REQUEST_TIMEOUT } = options;
+	const { timeout = config.REQUEST_TIMEOUT } = options;
 
 	const response = await axios({
 		method: options.method || 'get',
 		url,
 		data: options.data || options.body,
 		headers: options.headers,
-
+		timeout
 	});
 
 	return response.data;
