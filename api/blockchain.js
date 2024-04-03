@@ -12,7 +12,6 @@ export const fetchNodeList = async () => {
         }));
 
         const filteredUrls = [];
-
         results.forEach(result => result.value ? filteredUrls.push(result.value) : null);
 
         return filteredUrls;

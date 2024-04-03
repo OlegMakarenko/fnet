@@ -1,16 +1,14 @@
-import config from '@/config';
 import { decodeTransactionMessage, makeRequest, mergeUint8Arrays } from '@/utils';
 import { getNodeUrl } from '../../api/blockchain';
 import { MESSAGE_TYPES, TransactionType } from '@/constants';
 
+// Returns image by transaction hash
 export default async function handler(req, res) {
 	if (req.method !== 'GET') {
 		return;
 	}
 
 	const { hash } = req.query;
-
-    console.log('hash', hash)
 
     if (!hash || hash.length !== 64) {
         res.status(400).send('Invalid hash value');
@@ -25,8 +23,6 @@ export default async function handler(req, res) {
         transaction = response.transaction;
     }
     catch {}
-
-    console.log('transaction', transaction)
 
     if (!transaction || transaction.type !== TransactionType.AGGREGATE_COMPLETE) {
         res.status(404).send('Image not found');
@@ -43,7 +39,7 @@ export default async function handler(req, res) {
     }
 
 	const messages = transaction.transactions.slice(1).map(tx => {
-        return new Uint32Array(Buffer.from(tx.transaction.message, 'hex'));
+        return new Uint32Array(Buffer.from(tx.transaction.message.substring(2), 'hex'));
     });
 
     const ascii = mergeUint8Arrays(messages);

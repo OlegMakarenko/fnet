@@ -8,7 +8,6 @@ import { fileToBase64, useAuthorInfo, usePagination } from '@/utils';
 import { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import PageLoader from '@/components/PageLoader';
-import PostPreview from '@/components/PostPreview';
 import ButtonAttachFile from '@/components/ButtonAttachFile';
 import { FormTransaction } from '@/components/FormTransaction';
 import { MAX_IMAGE_SIZE_KB, MESSAGE_TYPES } from '@/constants';
@@ -49,6 +48,7 @@ const Home = ({ author  }) => {
 		postPagination.requestFirstPage();
 	}, []);
 
+	// TODO: refactor image optimization
 	const updateImage = async (imageFile) => {
 		const options = {
 			maxSizeMB: 0.09,

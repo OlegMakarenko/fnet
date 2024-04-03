@@ -1,10 +1,8 @@
 import { createPage, decodeTransactionMessage, formatTimestamp, hexToBase64, makeRequest, publicKeyToAddress } from '@/utils';
 import { fetchNodeList, getNodeUrl } from './blockchain';
 import { MESSAGE_TYPES, TransactionType } from '@/constants';
-import config from '@/config';
 
 export const fetchAccountImagePage = async (searchCriteria, author) => {
-    console.log('fetchAccountImagePage', author)
 	const { pageNumber } = searchCriteria;
 	const nodeUrl = await getNodeUrl();
 	const nodeList = await fetchNodeList();
@@ -29,7 +27,7 @@ export const fetchAccountImagePage = async (searchCriteria, author) => {
 		try {
             const headerTransaction = transaction.transactions[0].transaction;
             const headerMessage = JSON.parse(decodeTransactionMessage(headerTransaction.message));
-            if (headerMessage.type !== MESSAGE_TYPES.GALLERY_IMAGE) throw Error();
+            if (headerMessage.type !== MESSAGE_TYPES.GALLERY_IMAGE) throw Error('Invalid message type');
         }
         catch {
             return
@@ -37,7 +35,7 @@ export const fetchAccountImagePage = async (searchCriteria, author) => {
 
         let hex = '';
         transaction.transactions.slice(1).forEach(tx => {
-            hex += tx.transaction.message;
+            hex += tx.transaction.message.substring(2);
         });
 
         const base64 = hexToBase64(hex);

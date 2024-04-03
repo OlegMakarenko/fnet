@@ -1,5 +1,3 @@
-import { EVENT, STORAGE_KEY } from '@/constants';
-
 export const copyToClipboard = async text => {
 	if (navigator.clipboard) {
 		return navigator.clipboard.writeText(text);

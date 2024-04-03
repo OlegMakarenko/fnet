@@ -19,7 +19,6 @@ export const STORAGE_KEY = {
 	USER_CURRENCY: 'USER_CURRENCY'
 };
 
-
 export const MESSAGE_TYPES = {
     POST: 1,
     COMMENT: 2,
@@ -31,7 +30,9 @@ export const MESSAGE_TYPES = {
 }
 
 export const MAX_MESSAGE_VALUE_SIZE = 900;
+
 export const MAX_MESSAGE_BYTE_SIZE = 1023;
+
 export const MAX_IMAGE_SIZE_KB = 95;
 
 export const TransactionType = {

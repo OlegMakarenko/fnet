@@ -7,13 +7,13 @@ import { sha3_256 } from 'js-sha3';
 import { metadataUpdateValue } from 'symbol-sdk/src/symbol/metadata';
 import { TransactionMapping, UInt64 } from 'old-symbol-sdk';
 import config from '@/config';
-import { uint8ToHex } from 'symbol-sdk/src/utils/converter.js';
 
+// TODO: remove
 const facade = new symbolSdk.facade.SymbolFacade('testnet');
 const GENERATION_HASH = '49D6E1CE276A85B70EAFE52349AACCA389302E7A9754BCF1221E79494FC665A4';
 
 export const networkTypeToNetworkIdentifier = (networkType) => {
-    return (networkType === 152 || networkType === '152') ? 'testnet' : 'mainnet';
+    return (Number(networkType) === 152) ? 'testnet' : 'mainnet';
 }
 
 export const publicKeyToAddress = (publicKey) => {
@@ -246,13 +246,10 @@ export const createGalleryImageTransaction = (userPublicKey, image) => {
     const headerMessage = {
         type: MESSAGE_TYPES.GALLERY_IMAGE,
     }
-
     const imageUint8ArrayChunks = splitUint8Array(image, MAX_MESSAGE_BYTE_SIZE);
 
-    //imageUint8ArrayChunks.forEach((message, i) => console.log(`${i + 2}. message(${message.byteLength})`));
-    console.log('Inner Transactions:', imageUint8ArrayChunks.length + 1)
-
-    if (imageUint8ArrayChunks.length > 99) console.error('Too many txs')
+    // TODO: handle the max number of embedded transactions
+    // if (imageUint8ArrayChunks.length > 99) console.error('Too many txs')
 
     const embeddedTransactionsFields = [];
     const embeddedTransactions = [];
@@ -271,18 +268,20 @@ export const createGalleryImageTransaction = (userPublicKey, image) => {
         mosaics: []
     });
     imageUint8ArrayChunks.forEach(messageUint8Array => {
+        const messageUint8ArrayWithType = new Uint8Array([123, ...messageUint8Array]);
+
         embeddedTransactions.push(facade.transactionFactory.createEmbedded({
             type: 'transfer_transaction_v1',
             recipientAddress: userAddress,
             signerPublicKey: userPublicKey,
-            message: messageUint8Array,
+            message: messageUint8ArrayWithType,
             mosaics: []
         }));
         embeddedTransactionsFields.push({
             type: 'transfer_transaction_v1',
             recipientAddress: userAddress,
             signerPublicKey: userPublicKey,
-            message: messageUint8Array,
+            message: messageUint8ArrayWithType,
             mosaics: []
         });
     });
@@ -356,9 +355,12 @@ export const decodeAddress = (address) => {
 
 export const signWithSSS = async (transaction) => {
 	// Get transaction fee multipliers
+
+    // TODO: fetch fees from the API
 	// const nodeUrl = await getNodeUrl();
 	// const feeMultipliers = await makeRequest(`${nodeUrl}/network/fees/transaction`);
-    console.log(transaction)
+    // const fee = transaction.size * feeMultipliers.averageFeeMultiplier;
+
 	// Calculate average fee
 	const fee = transaction.size * 150; // feeMultipliers.averageFeeMultiplier;
     transaction.maxFee = UInt64.fromUint(fee);

@@ -5,7 +5,6 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Post from '@/components/Post';
 import LayoutPost from '@/components/LayoutPost';
-import Card from '@/components/Card';
 import Button from '@/components/Button';
 import { useAuthorInfo, useDataManager, useStorage, useToggle } from '@/utils';
 import { FormEditPost } from '@/components/FormEditPost';
@@ -99,54 +98,41 @@ const PostAccount = ({ author, initialPost, postAccount }) => {
 			<Header />
 			<LayoutPost>
 				<div className="layout-flex-col-sections">
-						<div className="layout-flex-col">
-							<Post
-								author={author}
-								title={post.title}
-								text={post.text}
-								dateCreation={creationDate}
-								dateEdition={editionDate}
-								isLoading={isHistoryLoading || isActivityLoading}
-								likeCount={likeCount}
-								commentCount={commentCount}
-								onLikeClick={toggleLikePost}
-								onCommentClick={scrollToComments}
-							/>
-							<div className={styles.actionPanel}>
-								<Button onClick={toggleCommentPost} icon="/images/button/comment.svg">{t('button_comment')}</Button>
-								{isPostEditable && <Button onClick={toggleEditPost} icon="/images/button/edit-white.svg">{t('button_editPost')}</Button>}
-								{!isPostEditable && <Button onClick={toggleLikePost} icon="/images/button/like.svg">{t('button_like')}</Button>}
-								<Button icon="/images/button/share.svg" onClick={toggleShare}>{t('button_share')}</Button>
-								{!isPostEditable && <Button icon="/images/button/xym.svg" onClick={toggleDonate}>{t('button_donate')}</Button>}
-							</div>
+					<div className="layout-flex-col">
+						<Post
+							author={author}
+							title={post.title}
+							text={post.text}
+							dateCreation={creationDate}
+							dateEdition={editionDate}
+							isLoading={isHistoryLoading || isActivityLoading}
+							likeCount={likeCount}
+							commentCount={commentCount}
+							onLikeClick={toggleLikePost}
+							onCommentClick={scrollToComments}
+						/>
+						<div className={styles.actionPanel}>
+							<Button onClick={toggleCommentPost} icon="/images/button/comment.svg">{t('button_comment')}</Button>
+							{isPostEditable && <Button onClick={toggleEditPost} icon="/images/button/edit-white.svg">{t('button_editPost')}</Button>}
+							{!isPostEditable && <Button onClick={toggleLikePost} icon="/images/button/like.svg">{t('button_like')}</Button>}
+							<Button icon="/images/button/share.svg" onClick={toggleShare}>{t('button_share')}</Button>
+							{!isPostEditable && <Button icon="/images/button/xym.svg" onClick={toggleDonate}>{t('button_donate')}</Button>}
 						</div>
+					</div>
 
-						<div className="layout-flex-col" id="comments">
-							<h4>Comments</h4>
-							<div>
-								{activity?.comments?.map((comment, index) => (
-									<Comment
-										author={authorInfoMap[comment.author.address]}
-										text={comment.text}
-										timestamp={comment.timestamp}
-										key={index}
-									/>
-								))}
-							</div>
+					<div className="layout-flex-col" id="comments">
+						<h4>Comments</h4>
+						<div>
+							{activity?.comments?.map((comment, index) => (
+								<Comment
+									author={authorInfoMap[comment.author.address]}
+									text={comment.text}
+									timestamp={comment.timestamp}
+									key={index}
+								/>
+							))}
 						</div>
-
-
-					{/* {history?.map((post, index) => (
-						<Card>
-							<Post
-								author={author}
-								title={post.title}
-								text={post.text}
-								dateCreation={post.timestamp}
-								key={index}
-							/>
-						</Card>
-					))} */}
+					</div>
 				</div>
 				<FormEditPost isVisible={isEditPostOpen} onClose={toggleEditPost} post={post} postAccount={postAccount} author={author} />
 				<FormLikePost isVisible={isLikePostOpen} onClose={toggleLikePost} postAccount={postAccount} />
