@@ -40,17 +40,14 @@ export const usePagination = (callback, defaultData, defaultFilter = {}, uniqBy)
 		setTimeout(async () => {
 			try {
 				const { data, pageNumber: currentPageNumber } = await callback({ pageNumber: pageNumber, ...filter });
-
-				if (currentPageNumber === pageNumber) {
-					setData(v => {
-						if (uniqBy) {
-							return _.uniqBy([...v, ...data], uniqBy);
-						}
-						return [...v, ...data]
-					});
-					setPageNumber(currentPageNumber);
-					setIsLastPage(data.length === 0);
-				}
+				setData(v => {
+					if (uniqBy) {
+						return _.uniqBy([...v, ...data], uniqBy);
+					}
+					return [...v, ...data]
+				});
+				setPageNumber(currentPageNumber);
+				setIsLastPage(data.length === 0);
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error('[Pagination] Error:', error);

@@ -119,16 +119,26 @@ export const fetchPostActivity = async (postAddress) => {
 export const fetchAccountPostPage = async (searchCriteria, author) => {
 	const { pageNumber } = searchCriteria;
 	const nodeUrl = await getNodeUrl();
-	let url = `${nodeUrl}/transactions/confirmed?type=16724&pageSize=500&pageNumber=${pageNumber}&order=desc&embedded=true`;
+	let currentPageNumber = pageNumber;
+	const maxPageNumber = 15 + currentPageNumber;
+	let transactions;
+	let posts;
 
-	if (author) {
-		url = url + `&signerPublicKey=${author.publicKey}`;
-	}
+	do {
+		let url = `${nodeUrl}/transactions/confirmed?type=16724&pageSize=100&pageNumber=${currentPageNumber}&order=desc&embedded=true`;
 
-	const transactions = await makeRequest(url);
-	const posts = formatPostTransactions(transactions.data);
+		if (author) {
+			url = url + `&signerPublicKey=${author.publicKey}`;
+		}
 
-	return createPage(posts, pageNumber);
+		transactions = await makeRequest(url);
+		posts = formatPostTransactions(transactions.data);
+		currentPageNumber ++;
+	} while(transactions.data.length > 0 && posts.length === 0 && currentPageNumber <= maxPageNumber);
+
+	const page = createPage(posts, currentPageNumber);
+
+	return page
 };
 
 export const fetchRecentPostPage = async (searchCriteria) => {
