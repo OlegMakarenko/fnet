@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createAccountActivationTransaction, createAccountNameTransaction, createCommentTransaction, createDonationTransaction, createGalleryImageTransaction, createLikeTransaction, createPageHref, createPostTransaction, signWithSSS, useDataManager, useStorage } from '@/utils';
+import { SymbolExtension } from 'symbol-wallet-lib';
 import Field from './Field';
 import Button from './Button';
 import { MESSAGE_TYPES, SENDING_OPTIONS, STORAGE_KEY } from '@/constants';
@@ -32,7 +33,7 @@ export const FormTransaction = ({ children, postAccount, type, data, onClose }) 
 	const isKeyNeeded = typesRequiredPublicKey.some(item => item === type);
 	const isKeyErrorShown = isKeyNeeded && !isKeyLoading && !userPublicKey;
 
-	const launchSSS = async () => {
+	const sendWithSSS = async () => {
 		if (!window.SSS) {
 			toast.error(t('SSS Extension is not installed in your browser or is blocked for this site'));
 			return;
@@ -50,6 +51,18 @@ export const FormTransaction = ({ children, postAccount, type, data, onClose }) 
 			toast.error(error.message);
 		}
 	};
+
+	const sendWithSymbolExtension = async () => {
+		const extension = new SymbolExtension();
+		await extension.registerProvider();
+
+		if (!extension.isConnected()) {
+			toast.error(t('Symbol Wallet Extension is not installed in your browser or is blocked for this site'));
+			return;
+		}
+
+		await extension.requestTransaction(transaction.payload);
+	}
 
 	const update = () => {
 		switch (type) {
@@ -152,14 +165,12 @@ export const FormTransaction = ({ children, postAccount, type, data, onClose }) 
 						</a>
 					)}
 					{sendingOption === SENDING_OPTIONS.SSS && (
-						<Button onClick={launchSSS}>Send with SSS Wallet</Button>
+						<Button onClick={sendWithSSS}>Send with SSS Wallet</Button>
+					)}
+					{sendingOption === SENDING_OPTIONS.SYMBOL_EXTENSION && (
+						<Button onClick={sendWithSymbolExtension}>Send with Symbol Wallet</Button>
 					)}
 				</div>
-				{sendingOption === SENDING_OPTIONS.PRINT_FIELDS && (
-					<Field title="Transaction Fields">
-						<ExpandableText onClick={() => setIsSent(true)}>{JSON.stringify(transaction.fields, null, 4)}</ExpandableText>
-					</Field>
-				)}
 				{sendingOption === SENDING_OPTIONS.PRINT_PAYLOAD && (
 					<Field title="Transaction Payload">
 						<ExpandableText onClick={() => setIsSent(true)}>{transaction.payload}</ExpandableText>

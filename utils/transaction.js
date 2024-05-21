@@ -2,14 +2,14 @@ import { requestSign, setTransaction } from 'sss-module';
 import { ChronoUnit, Instant } from '@js-joda/core';
 import { MAX_MESSAGE_BYTE_SIZE, MAX_MESSAGE_VALUE_SIZE, MESSAGE_TYPES, METADATA_KEYS } from '@/constants';
 import { chunkString, splitUint8Array } from './format';
-import symbolSdk from 'symbol-sdk';
-import { sha3_256 } from 'js-sha3';
-import { metadataUpdateValue } from 'symbol-sdk/src/symbol/metadata';
+import { PrivateKey, PublicKey, utils } from 'symbol-sdk';
+import { Address, metadataUpdateValue, SymbolFacade } from 'symbol-sdk/symbol';
 import { TransactionMapping, UInt64 } from 'old-symbol-sdk';
+import { sha3_256 } from 'js-sha3';
 import config from '@/config';
 
 // TODO: remove
-const facade = new symbolSdk.facade.SymbolFacade('testnet');
+const facade = new SymbolFacade('testnet');
 const GENERATION_HASH = '49D6E1CE276A85B70EAFE52349AACCA389302E7A9754BCF1221E79494FC665A4';
 
 export const networkTypeToNetworkIdentifier = (networkType) => {
@@ -17,15 +17,15 @@ export const networkTypeToNetworkIdentifier = (networkType) => {
 }
 
 export const publicKeyToAddress = (publicKey) => {
-    const facade = new symbolSdk.facade.SymbolFacade(networkTypeToNetworkIdentifier(config.NETWORK_TYPE));
-    const publicKeyArray = new symbolSdk.PublicKey(publicKey);
+    const facade = new SymbolFacade(networkTypeToNetworkIdentifier(config.NETWORK_TYPE));
+    const publicKeyArray = new PublicKey(publicKey);
 
     return facade.network.publicKeyToAddress(publicKeyArray).toString();
 }
 
 export const createAccount = () => {
-    const privateKey = symbolSdk.PrivateKey.random();
-    const keyPair = new symbolSdk.facade.SymbolFacade.KeyPair(privateKey);
+    const privateKey = PrivateKey.random();
+    const keyPair = new SymbolFacade.KeyPair(privateKey);
     const address = facade.network.publicKeyToAddress(keyPair.publicKey);
 
     return {
@@ -40,14 +40,8 @@ export const createAccountActivationTransaction = (accountAddress) => {
         recipientAddress: accountAddress,
         mosaics: []
     });
-    const fields = {
-        type: 'transfer_transaction_v1',
-        deadline: createTransactionDeadline().toString(),
-        recipientAddress: accountAddress,
-        mosaics: []
-    }
 
-    return createTransactionSendingOptions(transaction, fields);
+    return createTransactionSendingOptions(transaction);
 }
 
 export const createLikeTransaction = (postAccount, reaction) => {
@@ -63,15 +57,8 @@ export const createLikeTransaction = (postAccount, reaction) => {
         message: createTransactionMessage(JSON.stringify(message)),
         mosaics: []
     });
-    const fields = {
-        type: 'transfer_transaction_v1',
-        deadline: createTransactionDeadline().toString(),
-        recipientAddress: postAccount.address,
-        message: message,
-        mosaics: []
-    }
 
-    return createTransactionSendingOptions(transaction, fields);
+    return createTransactionSendingOptions(transaction);
 }
 
 export const createCommentTransaction = (postAccount, text) => {
@@ -87,15 +74,8 @@ export const createCommentTransaction = (postAccount, text) => {
         message: createTransactionMessage(JSON.stringify(message)),
         mosaics: []
     });
-    const fields = {
-        type: 'transfer_transaction_v1',
-        deadline: createTransactionDeadline().toString(),
-        recipientAddress: postAccount.address,
-        message: message,
-        mosaics: []
-    }
 
-    return createTransactionSendingOptions(transaction, fields);
+    return createTransactionSendingOptions(transaction);
 }
 
 export const createPostTransaction = (userPublicKey, postAccount, title, text) => {
@@ -112,7 +92,6 @@ export const createPostTransaction = (userPublicKey, postAccount, title, text) =
         value: item,
     }));
 
-    const embeddedTransactionsFields = [];
     const embeddedTransactions = [];
     [titleMessage, ...textMessageList].forEach(message => {
         embeddedTransactions.push(facade.transactionFactory.createEmbedded({
@@ -122,13 +101,6 @@ export const createPostTransaction = (userPublicKey, postAccount, title, text) =
             message: createTransactionMessage(JSON.stringify(message)),
             mosaics: []
         }));
-        embeddedTransactionsFields.push({
-            type: 'transfer_transaction_v1',
-            recipientAddress: postAccount.address,
-            signerPublicKey: userPublicKey,
-            message: message,
-            mosaics: []
-        });
     });
 
     const merkleHash = facade.constructor.hashEmbeddedTransactions(embeddedTransactions);
@@ -138,13 +110,8 @@ export const createPostTransaction = (userPublicKey, postAccount, title, text) =
 		transactionsHash: merkleHash,
 		transactions: embeddedTransactions,
     });
-    const fields = {
-        type: 'aggregate_complete_transaction_v2',
-        deadline: createTransactionDeadline().toString(),
-        transactions: embeddedTransactionsFields
-    }
 
-    return createTransactionSendingOptions(transaction, fields);
+    return createTransactionSendingOptions(transaction);
 }
 
 export const createAccountNameTransaction = (userPublicKey, targetAddress, currentName, newName, currentBio, newBio) => {
@@ -163,7 +130,6 @@ export const createAccountNameTransaction = (userPublicKey, targetAddress, curre
     const xorBioValue = new TextDecoder().decode(xorBioValueUint8Array)
     const bioScopedMetadataKey = encodeMetadataKey(METADATA_KEYS.ACCOUNT_BIO);
 
-    const embeddedTransactionsFields = [];
     const embeddedTransactions = [];
     embeddedTransactions.push(facade.transactionFactory.createEmbedded({
         type: 'account_metadata_transaction_v1',
@@ -173,14 +139,6 @@ export const createAccountNameTransaction = (userPublicKey, targetAddress, curre
         value: xorNameValue,
         valueSizeDelta: nameValueSizeDelta
     }));
-    embeddedTransactionsFields.push({
-        type: 'account_metadata_transaction_v1',
-        signerPublicKey: userPublicKey,
-        targetAddress,
-        scopedMetadataKey: nameScopedMetadataKey,
-        value: xorNameValue,
-        valueSizeDelta: nameValueSizeDelta
-    })
     embeddedTransactions.push(facade.transactionFactory.createEmbedded({
         type: 'account_metadata_transaction_v1',
         signerPublicKey: userPublicKey,
@@ -189,14 +147,6 @@ export const createAccountNameTransaction = (userPublicKey, targetAddress, curre
         value: xorBioValue,
         valueSizeDelta: bioValueSizeDelta
     }));
-    embeddedTransactionsFields.push({
-        type: 'account_metadata_transaction_v1',
-        signerPublicKey: userPublicKey,
-        targetAddress,
-        scopedMetadataKey: bioScopedMetadataKey,
-        value: xorBioValue,
-        valueSizeDelta: bioValueSizeDelta
-    })
     const merkleHash = facade.constructor.hashEmbeddedTransactions(embeddedTransactions);
     const transaction = facade.transactionFactory.create({
         type: 'aggregate_complete_transaction_v2',
@@ -205,14 +155,8 @@ export const createAccountNameTransaction = (userPublicKey, targetAddress, curre
         transactionsHash: merkleHash,
         transactions: embeddedTransactions
     });
-    const fields = {
-        type: 'aggregate_complete_transaction_v2',
-        signerPublicKey: userPublicKey,
-        deadline: createTransactionDeadline().toString(),
-        transactions: embeddedTransactionsFields
-    }
 
-    return createTransactionSendingOptions(transaction, fields);
+    return createTransactionSendingOptions(transaction);
 }
 
 export const createDonationTransaction = (address, amount) => {
@@ -227,18 +171,8 @@ export const createDonationTransaction = (address, amount) => {
         message: createTransactionMessage(JSON.stringify(message)),
         mosaics: [xymAmount]
     });
-    const fields = {
-        type: 'transfer_transaction_v1',
-        deadline: createTransactionDeadline().toString(),
-        recipientAddress: address,
-        message: message,
-        mosaics: [{
-            ...xymAmount,
-            mosaicId: xymAmount.mosaicId.toString()
-        }]
-    }
 
-    return createTransactionSendingOptions(transaction, fields);
+    return createTransactionSendingOptions(transaction);
 }
 
 export const createGalleryImageTransaction = (userPublicKey, image) => {
@@ -251,7 +185,6 @@ export const createGalleryImageTransaction = (userPublicKey, image) => {
     // TODO: handle the max number of embedded transactions
     // if (imageUint8ArrayChunks.length > 99) console.error('Too many txs')
 
-    const embeddedTransactionsFields = [];
     const embeddedTransactions = [];
     embeddedTransactions.push(facade.transactionFactory.createEmbedded({
         type: 'transfer_transaction_v1',
@@ -260,13 +193,6 @@ export const createGalleryImageTransaction = (userPublicKey, image) => {
         message: createTransactionMessage(JSON.stringify(headerMessage)),
         mosaics: []
     }));
-    embeddedTransactionsFields.push({
-        type: 'transfer_transaction_v1',
-        recipientAddress: userAddress,
-        signerPublicKey: userPublicKey,
-        message: headerMessage,
-        mosaics: []
-    });
     imageUint8ArrayChunks.forEach(messageUint8Array => {
         const messageUint8ArrayWithType = new Uint8Array([123, ...messageUint8Array]);
 
@@ -277,13 +203,6 @@ export const createGalleryImageTransaction = (userPublicKey, image) => {
             message: messageUint8ArrayWithType,
             mosaics: []
         }));
-        embeddedTransactionsFields.push({
-            type: 'transfer_transaction_v1',
-            recipientAddress: userAddress,
-            signerPublicKey: userPublicKey,
-            message: messageUint8ArrayWithType,
-            mosaics: []
-        });
     });
 
     const merkleHash = facade.constructor.hashEmbeddedTransactions(embeddedTransactions);
@@ -294,23 +213,17 @@ export const createGalleryImageTransaction = (userPublicKey, image) => {
 		transactions: embeddedTransactions,
         signerPublicKey: userPublicKey,
     });
-    const fields = {
-        type: 'aggregate_complete_transaction_v2',
-        deadline: createTransactionDeadline().toString(),
-        transactions: embeddedTransactionsFields
-    }
 
-    return createTransactionSendingOptions(transaction, fields);
+    return createTransactionSendingOptions(transaction);
 }
 
-export const createTransactionSendingOptions = (transaction, fields) => {
-    const payload = symbolSdk.utils.uint8ToHex(transaction.serialize());
+export const createTransactionSendingOptions = (transaction) => {
+    const payload = utils.uint8ToHex(transaction.serialize());
     const uri = `web+symbol://transaction?data=${payload}&generationHash=${GENERATION_HASH}`;
     const sssTransaction = TransactionMapping.createFromPayload(payload);
 
     return {
         uri,
-        fields,
         payload,
         sssTransaction
     }
@@ -340,7 +253,7 @@ export const encodeMetadataKey = (key) => {
 }
 
 export const encodeAddress = (address) => {
-    const tAddress = new symbolSdk.symbol.Address(address).bytes;
+    const tAddress = new Address(address).bytes;
 
     return [...tAddress]
         .map(x => x.toString(16).padStart(2, '0'))
@@ -349,7 +262,7 @@ export const encodeAddress = (address) => {
 }
 
 export const decodeAddress = (address) => {
-    const tAddress = new symbolSdk.symbol.Address(Buffer.from(address, 'hex')).toString()
+    const tAddress = new Address(Buffer.from(address, 'hex')).toString()
     return tAddress;
 }
 

@@ -24,6 +24,8 @@ import ButtonClose from '@/components/ButtonClose';
 import { useRouter } from 'next/router';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import Profile from '@/components/Profile';
+import { SymbolExtension } from 'symbol-wallet-lib'
+import { addressFromPublicKey } from 'utils/account';
 
 export const getServerSideProps = async ({ locale }) => {
 	return {
@@ -80,7 +82,22 @@ const Settings = () => {
 			fetchDisplayedName(userAddress);
 			fetchPublicKey(userAddress);
 		}
-	}, [userAddress])
+	}, [userAddress]);
+
+	const getAddressFromSymbolExtension = async () => {
+		const extension = new SymbolExtension();
+		await extension.registerProvider();
+
+		if (!extension.isConnected()) {
+			toast.error(t('Symbol Wallet Extension is not installed in your browser or is blocked for this site'));
+			return;
+		}
+
+		await extension.requestAccountPermission();
+		const accountInfo = await extension.getAccountInfo();
+		const address = addressFromPublicKey(accountInfo.publicKey, accountInfo.networkType);
+		setAddressInput(address)
+	}
 
 	return (
 		<div className={styles.wrapper}>
@@ -103,7 +120,17 @@ const Settings = () => {
 									<TextBox value={addressInput} onChange={(text) => setAddressInput(text.toUpperCase().trim())} errorMessage={addressErrorMessage} />
 								</Field>
 								<div className="layout-flex-row">
-									<Button isDisabled={!isAddressValid} onClick={login}>Log In</Button>
+									<Button
+										isDisabled={!isAddressValid}
+										onClick={login}
+									>
+										Log In
+									</Button>
+									{/* <Button
+										onClick={getAddressFromSymbolExtension}
+									>
+										Get Address From Wallet
+									</Button> */}
 								</div>
 							</div>
 						)}
@@ -137,6 +164,18 @@ const Settings = () => {
 								</div>
 							</RadioButton>
 							<RadioButton
+								value={sendingOption === SENDING_OPTIONS.SYMBOL_EXTENSION}
+								onChange={() => setSendingOption(SENDING_OPTIONS.SYMBOL_EXTENSION)}
+							>
+								Open transaction in the Symbol Wallet browser extension.
+								<div className={styles.storeLinkContainer}>
+									<a target="_blank" href={config.SYMBOL_WALLET_CHROME_URL}>
+										<img className={styles.playStore} alt='Get it on Chrome Web Store' src='/images/store-chrome-web.png'/>
+									</a>
+								</div>
+								<a href=""></a>
+							</RadioButton>
+							<RadioButton
 								value={sendingOption === SENDING_OPTIONS.SSS}
 								onChange={() => setSendingOption(SENDING_OPTIONS.SSS)}
 							>
@@ -153,12 +192,6 @@ const Settings = () => {
 								onChange={() => setSendingOption(SENDING_OPTIONS.PRINT_PAYLOAD)}
 							>
 								Output transaction payload. The payload needs to be signed by your account and announced to the Symbol Network.
-							</RadioButton>
-							<RadioButton
-								value={sendingOption === SENDING_OPTIONS.PRINT_FIELDS}
-								onChange={() => setSendingOption(SENDING_OPTIONS.PRINT_FIELDS)}
-							>
-								Output transaction info. You need to create transaction and announce it using the wallet, CLI or API.
 							</RadioButton>
 						</div>
 						<hr />
